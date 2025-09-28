@@ -1,90 +1,92 @@
 import React, { useState } from "react";
-import "./login.css";
+import { useNavigate, Link } from "react-router-dom";
+import { login } from "../services/api";
 
-function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("student");
-  const [error, setError] = useState("");
+function Login() {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState(""); // for error messages
+  const navigate = useNavigate();
 
-  function validatePassword(role, password) {
-    if (role === "student" && !password.startsWith("90")) {
-      return "Student password must start with 90";
-    }
-    if (role === "lecturer" && !password.startsWith("LEC")) {
-      return "Lecturer password must start with LEC-";
-    }
-    if (role === "principal" && !password.startsWith("PRL")) {
-      return "Principal Lecturer password must start with PRL-";
-    }
-    if (role === "leader" && !password.startsWith("PL")) {
-      return "Program Leader password must start with PL-";
-    }
-    return "";
-  }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  function handleLogin(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const validationError = validatePassword(role, password);
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
     setError("");
-    alert(`Login Success!\nEmail: ${email}\nRole: ${role}`);
-    // Later: send to backend for real authentication
-  }
 
-  return React.createElement(
-    "div",
-    { className: "login-container" },
-    React.createElement(
-      "div",
-      { className: "login-card" },
-      React.createElement("div", { className: "login-left" }, React.createElement("div", { className: "graphic" })),
-      React.createElement(
-        "div",
-        { className: "login-right" },
-        React.createElement("h2", null, "User Login"),
-        React.createElement(
-          "form",
-          { onSubmit: handleLogin },
-          React.createElement("input", {
-            type: "email",
-            placeholder: "Enter your email",
-            value: email,
-            onChange: (e) => setEmail(e.target.value),
-            required: true,
-          }),
-          React.createElement("input", {
-            type: "password",
-            placeholder: "Enter password",
-            value: password,
-            onChange: (e) => setPassword(e.target.value),
-            required: true,
-          }),
-          React.createElement(
-            "select",
-            {
-              value: role,
-              onChange: (e) => setRole(e.target.value),
-              required: true,
-              className: "role-select",
-            },
-            React.createElement("option", { value: "student" }, "Student"),
-            React.createElement("option", { value: "lecturer" }, "Lecturer"),
-            React.createElement("option", { value: "principal" }, "Principal Lecturer"),
-            React.createElement("option", { value: "leader" }, "Program Leader")
-          ),
-          error &&
-            React.createElement("p", { className: "error" }, error),
-          React.createElement("button", { type: "submit" }, "Login")
-        )
-      )
-    )
+    try {
+      const data = await login(formData);
+      console.log("Login response:", data);
+
+      if (data.token) {
+        // Save token and role
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.user.role);
+
+        // Redirect based on role
+        switch (data.user.role) {
+          case "student":
+            navigate("/student");
+            break;
+          case "lecture":
+            navigate("/lecturer");
+            break;
+          case "program_leader":
+            navigate("/leader");
+            break;
+          case "principal_lecture":
+            navigate("/principal");
+            break;
+          case "admin":
+            navigate("/admin"); // if you have an admin page
+            break;
+          default:
+            navigate("/home");
+        }
+      } else {
+        setError("Login failed. Please check your credentials.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Login failed. Please try again.");
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
+      <h2>Login</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" style={{ marginTop: "10px" }}>Login</button>
+      </form>
+
+      {/* Link to Signup */}
+      <p style={{ marginTop: "15px" }}>
+        Don't have an account? <Link to="/signup">Sign up here</Link>
+      </p>
+    </div>
   );
 }
 
-export default LoginPage;
+export default Login;

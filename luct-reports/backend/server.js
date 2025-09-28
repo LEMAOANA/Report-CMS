@@ -1,6 +1,6 @@
-// server.js
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors"; // <-- import cors
 import authRoutes from "./routes/authRoutes.js";
 import sequelize from "./config/db.js"; // Sequelize instance
 
@@ -8,6 +8,12 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// Enable CORS
+app.use(cors({
+  origin: "http://localhost:3001", // your frontend URL
+  credentials: true
+}));
 
 // Health check
 app.get("/health", async (req, res) => {
