@@ -1,0 +1,70 @@
+/* LecturerPage.css */
+
+/* General page styling */
+.lecturer-page {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to bottom, navy, blue, navy);
+  color: #333;
+  min-height: 100vh;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+/* Page header */
+.lecturer-page h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+/* Page description */
+.lecturer-page p {
+  font-size: 18px;
+  margin-bottom: 40px;
+  color: white;
+}
+
+/* Container for cards */
+.lecturer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Card-style button styling */
+.lecturer-actions button {
+  width: 250px;
+  padding: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  border: 2px solid #1e3c72; /* blue border */
+  border-radius: 15px;
+  background-color: white; /* white card */
+  color: #1e3c72; /* blue text */
+  cursor: pointer;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: 0.3s ease;
+}
+
+/* Hover effect */
+.lecturer-actions button:hover {
+  background-color: #f0f8ff; /* light blue on hover */
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .lecturer-actions button {
+    width: 90%;
+  }
+
+  .lecturer-page h2 {
+    font-size: 28px;
+  }
+
+  .lecturer-page p {
+    font-size: 16px;
+  }
+}

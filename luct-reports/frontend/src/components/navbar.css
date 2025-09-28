@@ -1,0 +1,87 @@
+/* Navbar container (styled as a card) */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #01101f, #0b77be); /* modern gradient */
+  padding: 20px 30px;
+  color: white;
+  font-family: Arial, sans-serif;
+  position: fixed; /* sticky navbar */
+  top: 10px; /* leave space from top */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%; /* narrower than screen */
+  z-index: 1000;
+  border-radius: 20px; /* rounded edges like a card */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* deep shadow */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hover effect to lift the navbar card */
+.navbar:hover {
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Logo styling */
+.navbar-logo a {
+  color: white;
+  font-size: 26px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar-logo a:hover {
+  color: #1abc9c; /* teal hover */
+}
+
+/* Navbar links container */
+.navbar-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+/* Individual links */
+.navbar-links li {
+  margin: 0 15px;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hover effect for links */
+.navbar-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #1abc9c;
+  transform: scale(1.05);
+}
+
+/* Responsive: stack links on small screens */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 20px;
+    width: 95%;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .navbar-links li {
+    margin: 10px 0;
+  }
+}

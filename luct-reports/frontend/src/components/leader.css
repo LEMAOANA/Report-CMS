@@ -1,0 +1,75 @@
+/* Page styling */
+.pl-page {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to bottom, navy, blue, navy);
+  color: white;
+  min-height: 100vh;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+/* Header */
+.pl-page h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+/* Description */
+.pl-page p {
+  font-size: 18px;
+  margin-bottom: 40px;
+  color:blue;
+}
+
+/* Cards container */
+.pl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Individual card */
+.pl-card {
+  width: 220px;
+  padding: 25px 15px;
+  background-color: white;
+  color: #1e3c72;
+  border-radius: 15px;
+  border: 2px solid #1e3c72;
+  cursor: pointer;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+/* Card description */
+.card-desc {
+  font-size: 14px;
+  font-weight: normal;
+  margin-top: 10px;
+  color: #1e3c72;
+}
+
+/* Hover effect */
+.pl-card:hover {
+  background-color: #f0f8ff;
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .pl-card {
+    width: 90%;
+  }
+
+  .pl-page h2 {
+    font-size: 28px;
+  }
+
+  .pl-page p {
+    font-size: 16px;
+  }
+}

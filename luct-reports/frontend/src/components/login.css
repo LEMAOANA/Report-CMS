@@ -1,0 +1,55 @@
+/* Make space below navbar */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.main-content {
+  padding-top: 70px; /* match or slightly larger than navbar height */
+}
+
+/* Login container styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px); /* full screen minus navbar */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  width: 350px;
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-box input,
+.login-box select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background: #0d6efd;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-box button:hover {
+  background: #084298;
+}
