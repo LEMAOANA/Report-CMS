@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // added Link
+import { useNavigate, Link } from "react-router-dom";
 import { signup } from "../services/api";
+import "./signup.css";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -10,28 +11,65 @@ function Signup() {
     passwordConfirm: "",
     role: "student",
   });
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
+  const [emailValid, setEmailValid] = useState(true);
   const navigate = useNavigate();
 
+  // Regex for email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "password") {
+      checkPasswordStrength(value);
+    }
+
+    if (name === "email") {
+      setEmailValid(emailRegex.test(value));
+    }
+  };
+
+  const checkPasswordStrength = (password) => {
+    if (password.length < 6) {
+      setPasswordStrength("Weak");
+    } else if (/[A-Z]/.test(password) && /\d/.test(password) && /[@$!%*?&]/.test(password)) {
+      setPasswordStrength("Strong");
+    } else {
+      setPasswordStrength("Medium");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    // Email validation before submit
+    if (!emailRegex.test(formData.email)) {
+      setError("❌ Please enter a valid email address.");
+      return;
+    }
+
     if (formData.password !== formData.passwordConfirm) {
-      setError("Passwords do not match.");
+      setError("❌ Passwords do not match.");
+      return;
+    }
+
+    if (passwordStrength === "Weak") {
+      setError("❌ Please choose a stronger password.");
       return;
     }
 
     try {
+      setLoading(true);
       const data = await signup(formData);
       console.log("Signup response:", data);
 
       if (data.token) {
-        // Save token and role
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
 
@@ -50,7 +88,7 @@ function Signup() {
             navigate("/principal");
             break;
           case "admin":
-            navigate("/admin"); // if you have an admin page
+            navigate("/admin");
             break;
           default:
             navigate("/home");
@@ -60,76 +98,79 @@ function Signup() {
       }
     } catch (err) {
       console.error(err);
-      setError("Signup failed. Please try again.");
+      setError("⚠️ Signup failed. Server error.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Signup</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div className="signup-wrapper">
+      <div className="signup-container">
+        <h2>Create an Account</h2>
+        {error && <p className="error">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
             name="username"
-            placeholder="Username"
+            placeholder="👤 Username"
             value={formData.username}
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
+
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="📧 Email"
             value={formData.email}
             onChange={handleChange}
             required
+            className={!emailValid ? "invalid" : ""}
           />
-        </div>
-        <div>
+          {!emailValid && <p className="error">⚠️ Please enter a valid email format.</p>}
+
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="🔑 Password"
             value={formData.password}
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
+          {formData.password && (
+            <p className={`strength ${passwordStrength.toLowerCase()}`}>
+              Password Strength: {passwordStrength}
+            </p>
+          )}
+
           <input
             type="password"
             name="passwordConfirm"
-            placeholder="Confirm Password"
+            placeholder="✅ Confirm Password"
             value={formData.passwordConfirm}
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-          >
-            <option value="student">Student</option>
-            <option value="lecture">Lecturer</option>
-            <option value="program_leader">Leader</option>
-            <option value="principal_lecture">Principal</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <button type="submit" style={{ marginTop: "10px" }}>Signup</button>
-      </form>
 
-      {/* Link to Login */}
-      <p style={{ marginTop: "15px" }}>
-        Already have an account? <Link to="/">Login here</Link>
-      </p>
+          <select name="role" value={formData.role} onChange={handleChange} required>
+            <option value="student">🎓 Student</option>
+            <option value="lecture">👨‍🏫 Lecturer</option>
+            <option value="program_leader">📘 Leader</option>
+            <option value="principal_lecture">🏛️ Principal</option>
+            <option value="admin">⚙️ Admin</option>
+          </select>
+
+          <button type="submit" disabled={loading || !emailValid}>
+            {loading ? "Signing up..." : "Signup"}
+          </button>
+        </form>
+
+        <p className="login-link">
+          Already have an account? <Link to="/">Login here</Link>
+        </p>
+      </div>
     </div>
   );
 }
