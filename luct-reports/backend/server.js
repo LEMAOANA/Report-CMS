@@ -1,8 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors"; // <-- import cors
+import cors from "cors"; 
+import sequelize from "./config/db.js"; 
 import authRoutes from "./routes/authRoutes.js";
-import sequelize from "./config/db.js"; // Sequelize instance
+import userRoutes from "./routes/userRoutes.js";
+import facultyRoutes from "./routes/facultyRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
+import classRoutes from "./routes/classRoutes.js"; 
+import reportRoutes from "./routes/reportRoutes.js";
+import reportFeedbackRoutes from "./routes/reportFeedbackRoutes.js";
+
 
 dotenv.config();
 
@@ -27,6 +34,13 @@ app.get("/health", async (req, res) => {
 
 // Mount auth routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/faculties", facultyRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/classes", classRoutes); 
+app.use("/api/reports", reportRoutes);
+app.use("/api/reportFeedback", reportFeedbackRoutes);
+
 
 // Test Sequelize connection and sync models
 (async () => {

@@ -1,0 +1,17 @@
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
+import Course from "./Course.js"; // A class belongs to a course
+
+const Class = sequelize.define("Class", {
+  name: { type: DataTypes.STRING, allowNull: false }, // e.g., "IT101-A"
+  year: { type: DataTypes.INTEGER, allowNull: false }, // Academic year
+  semester: { type: DataTypes.ENUM("1", "2"), allowNull: false }, // Semester number
+  venue: { type: DataTypes.STRING, allowNull: true }, // e.g., "Room 101"
+  scheduledTime: { type: DataTypes.STRING, allowNull: true }, // e.g., "08:00 - 10:00"
+  totalRegisteredStudents: { type: DataTypes.INTEGER, allowNull: true }, // Total registered students
+}, { timestamps: true });
+
+// Associations
+Class.belongsTo(Course, { foreignKey: "courseId" }); // Each class belongs to a course
+
+export default Class;

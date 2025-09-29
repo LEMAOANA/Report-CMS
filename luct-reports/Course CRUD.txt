@@ -1,0 +1,14 @@
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/courses -H "Content-Type: application/json" -d "{\"name\":\"Introduction to Programming\",\"code\":\"CS101\",\"description\":\"Basic programming course\",\"facultyId\":1}"
+{"status":"success","course":{"id":1,"name":"Introduction to Programming","code":"CS101","description":"Basic programming course","facultyId":1,"programLeaderId":null,"updatedAt":"2025-09-29T07:27:48.992Z","createdAt":"2025-09-29T07:27:48.992Z"}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/courses
+{"status":"success","courses":[{"id":1,"name":"Introduction to Programming","code":"CS101","description":"Basic programming course","createdAt":"2025-09-29T07:27:48.992Z","updatedAt":"2025-09-29T07:27:48.992Z","facultyId":1,"programLeaderId":null,"Faculty":{"id":1,"name":"Faculty of ICT"},"programLeader":null}]}
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/courses/1
+{"status":"success","course":{"id":1,"name":"Introduction to Programming","code":"CS101","description":"Basic programming course","createdAt":"2025-09-29T07:27:48.992Z","updatedAt":"2025-09-29T07:27:48.992Z","facultyId":1,"programLeaderId":null,"Faculty":{"id":1,"name":"Faculty of ICT"},"programLeader":null}}
+C:\Users\LENONG>curl -X PUT http://localhost:3000/api/courses/1 -H "Content-Type: application/json" -d "{\"name\":\"Advanced Programming\",\"description\":\"Updated course description\"}"
+{"status":"success","course":{"id":1,"name":"Advanced Programming","code":"CS101","description":"Updated course description","createdAt":"2025-09-29T07:27:48.992Z","updatedAt":"2025-09-29T07:30:23.479Z","facultyId":1,"programLeaderId":null}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X DELETE http://localhost:3000/api/courses/1
+{"status":"success","message":"Course deleted successfully"}
+C:\Users\LENONG>

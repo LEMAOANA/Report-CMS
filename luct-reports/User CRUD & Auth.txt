@@ -1,0 +1,23 @@
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/auth/signup -H "Content-Type: application/json" -d "{\"username\":\"Mamacita\",\"email\":\"mamacita@example.com\",\"password\":\"123456\",\"passwordConfirm\":\"123456\",\"role\":\"lecture\"}"
+{"status":"success","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsInJvbGUiOiJsZWN0dXJlIiwiaWF0IjoxNzU5MTQ4Njg4LCJleHAiOjE3NTk3NTM0ODh9.KuZB4tflcj508g_PVLYPObD0h_AzuWVYX2RSQTOXrl8","user":{"id":20,"username":"Mamacita","email":"mamacita@example.com","role":"lecture"}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"mamacita@example.com\",\"password\":\"123456\"}"
+{"status":"success","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsInJvbGUiOiJsZWN0dXJlIiwiaWF0IjoxNzU5MTQ4ODEyLCJleHAiOjE3NTk3NTM2MTJ9.OyZGaLksra7orzUfhkZdOmQu5eBFr2wfsaApM6SojI4","user":{"id":20,"username":"Mamacita","email":"mamacita@example.com","role":"lecture"}}
+C:\Users\LENONG>
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/users
+{"status":"success","users":[{"id":20,"username":"Mamacita","email":"mamacita@example.com","role":"lecture","createdAt":"2025-09-29T12:24:47.323Z","updatedAt":"2025-09-29T12:24:47.323Z"}]}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/users/20
+{"status":"success","user":{"id":20,"username":"Mamacita","email":"mamacita@example.com","role":"lecture","createdAt":"2025-09-29T12:24:47.323Z","updatedAt":"2025-09-29T12:24:47.323Z"}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X PUT http://localhost:3000/api/users/20 -H "Content-Type: application/json" -d "{\"username\":\"MamacitaUpdated\",\"role\":\"program_leader\"}"
+{"status":"success","user":{"id":20,"username":"MamacitaUpdated","email":"mamacita@example.com","role":"program_leader","createdAt":"2025-09-29T12:24:47.323Z","updatedAt":"2025-09-29T12:27:36.953Z"}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X DELETE http://localhost:3000/api/users/20
+{"status":"success","message":"User deleted successfully"}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/users -H "Content-Type: application/json" -d "{\"username\":\"Mamacita\",\"email\":\"mamacita@example.com\",\"password\":\"123456\",\"passwordConfirm\":\"123456\",\"role\":\"lecture\"}"
+{"status":"success","user":{"id":21,"username":"Mamacita","email":"mamacita@example.com","role":"lecture","updatedAt":"2025-09-29T12:28:26.919Z","createdAt":"2025-09-29T12:28:26.919Z"}}
+C:\Users\LENONG>

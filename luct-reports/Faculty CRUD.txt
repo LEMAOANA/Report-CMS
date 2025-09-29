@@ -1,0 +1,16 @@
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/faculties -H "Content-Type: application/json" -d "{\"name\":\"Faculty of Science\"}"
+{"status":"success","faculty":{"id":2,"name":"Faculty of Science","updatedAt":"2025-09-29T07:08:31.659Z","createdAt":"2025-09-29T07:08:31.659Z"}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/faculties
+{"status":"success","faculties":[{"id":1,"name":"Faculty of ICT","createdAt":"2025-09-29T06:55:30.517Z","updatedAt":"2025-09-29T06:55:30.517Z"},{"id":2,"name":"Faculty of Science","createdAt":"2025-09-29T07:08:31.659Z","updatedAt":"2025-09-29T07:08:31.659Z"}]}
+C:\Users\LENONG>
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/faculties/2
+{"status":"success","faculty":{"id":2,"name":"Faculty of Science","createdAt":"2025-09-29T07:08:31.659Z","updatedAt":"2025-09-29T07:08:31.659Z"}}
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X PUT http://localhost:3000/api/faculties/2 -H "Content-Type: application/json" -d "{\"name\":\"Faculty of Natural Sciences\"}"
+{"status":"success","faculty":{"id":2,"name":"Faculty of Natural Sciences","createdAt":"2025-09-29T07:08:31.659Z","updatedAt":"2025-09-29T07:10:46.775Z"}}
+C:\Users\LENONG>curl -X DELETE http://localhost:3000/api/faculties/2
+{"status":"success","message":"Faculty deleted successfully"}
+C:\Users\LENONG>

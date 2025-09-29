@@ -1,0 +1,20 @@
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/classes -H "Content-Type: application/json" -d "{\"name\":\"Class B\",\"year\":2025,\"semester\":1,\"courseId\":2,\"lecturerId\":2,\"facultyId\":1,\"weekOfReporting\":2,\"dateOfLecture\":\"2025-10-01\",\"actualStudentsPresent\":28,\"totalRegisteredStudents\":30,\"venue\":\"Room 102\",\"scheduledTime\":\"10:00\",\"topicTaught\":\"Advanced Programming\",\"learningOutcomes\":\"Master basic algorithms\",\"lecturerRecommendations\":\"Provide exercises\"}"
+{"status":"success","class":{"id":6,"name":"Class B","year":2025,"semester":"1","venue":"Room 102","scheduledTime":"10:00","totalRegisteredStudents":30,"courseId":2,"updatedAt":"2025-09-29T08:02:36.596Z","createdAt":"2025-09-29T08:02:36.596Z"}}
+C:\Users\LENONG>
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/classes
+{"status":"success","classes":[{"id":6,"name":"Class B","year":2025,"semester":"1","venue":"Room 102","scheduledTime":"10:00","totalRegisteredStudents":30,"createdAt":"2025-09-29T08:02:36.596Z","updatedAt":"2025-09-29T08:02:36.596Z","courseId":2,"Course":{"id":2,"name":"Introduction to Programming","code":"CS101","description":"Basic programming course","createdAt":"2025-09-29T07:51:23.926Z","updatedAt":"2025-09-29T07:51:23.926Z","facultyId":1,"programLeaderId":null}}]}
+C:\Users\LENONG>
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/classes/6
+{"status":"success","class":{"id":6,"name":"Class B","year":2025,"semester":"1","venue":"Room 102","scheduledTime":"10:00","totalRegisteredStudents":30,"createdAt":"2025-09-29T08:02:36.596Z","updatedAt":"2025-09-29T08:02:36.596Z","courseId":2,"Course":{"id":2,"name":"Introduction to Programming","code":"CS101","description":"Basic programming course","createdAt":"2025-09-29T07:51:23.926Z","updatedAt":"2025-09-29T07:51:23.926Z","facultyId":1,"programLeaderId":null}}}
+C:\Users\LENONG>
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X PUT http://localhost:3000/api/classes/6 -H "Content-Type: application/json" -d "{\"venue\":\"Room 105\",\"scheduledTime\":\"11:00\"}"
+{"status":"success","class":{"id":6,"name":"Class B","year":2025,"semester":"1","venue":"Room 105","scheduledTime":"11:00","totalRegisteredStudents":30,"createdAt":"2025-09-29T08:02:36.596Z","updatedAt":"2025-09-29T08:03:31.536Z","courseId":2}}
+C:\Users\LENONG>
+C:\Users\LENONG>
+C:\Users\LENONG>curl -X DELETE http://localhost:3000/api/classes/6
+{"status":"success","message":"Class deleted successfully"}
+C:\Users\LENONG> 
