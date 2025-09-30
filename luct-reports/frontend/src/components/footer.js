@@ -2,13 +2,13 @@ import React from "react";
 import "./footer.css";
 
 function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="footer">
-      <div className="footer-container">
-        <div className="footer-left">
-          <h3>LUCT REPORT</h3>
-          <p>© 2025 LUCT. All rights reserved.</p>
-        </div>
+    <footer className="app-footer">
+      <div className="footer-content">
+        <p>© {year} LUCT Reports. All rights reserved.</p>
+        <p>Powered by <strong>me</strong></p>
       </div>
     </footer>
   );

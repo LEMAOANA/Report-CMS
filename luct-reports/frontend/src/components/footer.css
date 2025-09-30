@@ -1,70 +1,26 @@
-.footer {
-  background: linear-gradient(135deg, #020c15, #0c75ba); /* match navbar */
-  color: white;
-  padding: 15px 40px; /* match navbar padding size */
-  font-family: Arial, sans-serif;
-  border-radius: 20px; /* round edges like a card */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  margin: 20px auto 0 auto;
-  width: 90%;
+.app-footer {
+  background-color: #1a202c;       /* Dark background to match navbar */
+  color: #e2e8f0;                  /* Light text for contrast */
+  padding: 15px 20px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-top: 1px solid #2d3748;
+  width: 100%;                      /* Full width */
 }
 
-.footer-container {
+.footer-content {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  max-width: 1200px;
-  margin: 0 auto;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
 }
 
-/* Left side */
-.footer-left h3 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: white;
-}
-
-.footer-left p {
-  font-size: 14px;
-  color: #f0f0f0; /* softer white text */
-}
-
-/* Right side */
-.footer-right h4 {
-  font-size: 18px;
-  margin-bottom: 5px;
-  color: #ffffff;
-}
-
-.footer-right ul {
-  list-style: none;
-  padding: 0;
+.footer-content p {
   margin: 0;
+  font-size: 14px;
 }
 
-.footer-right ul li {
-  margin-bottom: 8px;
-}
-
-.footer-right ul li a {
-  color: #f0f0f0;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer-right ul li a:hover {
-  color: #1abc9c; /* teal hover effect */
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .footer-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .footer-left,
-  .footer-right {
-    margin-bottom: 20px;
-  }
+.footer-content strong {
+  color: #63b3ed;
+  font-weight: 600;
 }

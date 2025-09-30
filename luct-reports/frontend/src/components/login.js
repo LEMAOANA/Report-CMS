@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../services/api";
+import { login } from "../services/api"; // make sure your API returns { token, user }
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState(""); // for error messages
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,10 +19,11 @@ function Login() {
       const data = await login(formData);
       console.log("Login response:", data);
 
-      if (data.token) {
-        // Save token and role
+      if (data.token && data.user) {
+        // Store full user info
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
+        localStorage.setItem("user", JSON.stringify(data.user)); // <- needed for navbar
 
         // Redirect based on role
         switch (data.user.role) {
@@ -39,7 +40,7 @@ function Login() {
             navigate("/principal");
             break;
           case "admin":
-            navigate("/admin"); // if you have an admin page
+            navigate("/admin");
             break;
           default:
             navigate("/home");
@@ -78,10 +79,11 @@ function Login() {
             required
           />
         </div>
-        <button type="submit" style={{ marginTop: "10px" }}>Login</button>
+        <button type="submit" style={{ marginTop: "10px" }}>
+          Login
+        </button>
       </form>
 
-      {/* Link to Signup */}
       <p style={{ marginTop: "15px" }}>
         Don't have an account? <Link to="/signup">Sign up here</Link>
       </p>

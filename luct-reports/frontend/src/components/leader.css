@@ -1,75 +1,34 @@
-/* Page styling */
-.pl-page {
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(to bottom, navy, blue, navy);
-  color: white;
-  min-height: 100vh;
-  padding: 50px 20px;
-  text-align: center;
+.faculty-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+  color: #000; /* black text */
 }
 
-/* Header */
-.pl-page h2 {
-  font-size: 36px;
-  margin-bottom: 10px;
-  color: white;
+.faculty-table th,
+.faculty-table td {
+  border: 1px solid #000; /* solid black borders */
+  padding: 10px;
+  text-align: left;
 }
 
-/* Description */
-.pl-page p {
-  font-size: 18px;
-  margin-bottom: 40px;
-  color:blue;
+.faculty-table th {
+  background-color: #000; /* black header */
+  color: #fff; /* white text */
+  font-weight: bold;
 }
 
-/* Cards container */
-.pl-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
+.faculty-table tr:nth-child(even) {
+  background-color: #fff; /* pure white rows */
 }
 
-/* Individual card */
-.pl-card {
-  width: 220px;
-  padding: 25px 15px;
-  background-color: white;
-  color: #1e3c72;
-  border-radius: 15px;
-  border: 2px solid #1e3c72;
+.faculty-table tr:nth-child(odd) {
+  background-color: #fff; /* also pure white rows */
+}
+
+.faculty-table tr:hover {
+  background-color: #000; /* black hover */
+  color: #fff; /* white text on hover */
   cursor: pointer;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  text-align: center;
-}
-
-/* Card description */
-.card-desc {
-  font-size: 14px;
-  font-weight: normal;
-  margin-top: 10px;
-  color: #1e3c72;
-}
-
-/* Hover effect */
-.pl-card:hover {
-  background-color: #f0f8ff;
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .pl-card {
-    width: 90%;
-  }
-
-  .pl-page h2 {
-    font-size: 28px;
-  }
-
-  .pl-page p {
-    font-size: 16px;
-  }
 }

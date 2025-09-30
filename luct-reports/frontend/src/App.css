@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+/* App container takes full height */
+body, html, #root {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1; /* takes remaining space above footer */
+}
