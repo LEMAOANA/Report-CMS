@@ -18,87 +18,64 @@ function Signup() {
   const [emailValid, setEmailValid] = useState(true);
   const navigate = useNavigate();
 
-  // Regex for email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    if (name === "password") {
-      checkPasswordStrength(value);
-    }
-
-    if (name === "email") {
-      setEmailValid(emailRegex.test(value));
-    }
+    if (name === "password") checkPasswordStrength(value);
+    if (name === "email") setEmailValid(emailRegex.test(value));
   };
 
   const checkPasswordStrength = (password) => {
-    if (password.length < 6) {
-      setPasswordStrength("Weak");
-    } else if (/[A-Z]/.test(password) && /\d/.test(password) && /[@$!%*?&]/.test(password)) {
-      setPasswordStrength("Strong");
-    } else {
-      setPasswordStrength("Medium");
-    }
+    if (password.length < 6) setPasswordStrength("Weak");
+    else if (/[A-Z]/.test(password) && /\d/.test(password) && /[@$!%*?&]/.test(password)) setPasswordStrength("Strong");
+    else setPasswordStrength("Medium");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Email validation before submit
     if (!emailRegex.test(formData.email)) {
-      setError("❌ Please enter a valid email address.");
+      setError("Please enter a valid email address.");
       return;
     }
 
     if (formData.password !== formData.passwordConfirm) {
-      setError("❌ Passwords do not match.");
+      setError("Passwords do not match.");
       return;
     }
 
     if (passwordStrength === "Weak") {
-      setError("❌ Please choose a stronger password.");
+      setError("Please choose a stronger password.");
       return;
     }
 
     try {
       setLoading(true);
       const data = await signup(formData);
-      console.log("Signup response:", data);
 
       if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
 
-        // Redirect based on role
+        // Redirect by role
         switch (data.user.role) {
-          case "student":
-            navigate("/student");
-            break;
-          case "lecture":
-            navigate("/lecturer");
-            break;
-          case "program_leader":
-            navigate("/leader");
-            break;
-          case "principal_lecture":
-            navigate("/principal");
-            break;
-          case "admin":
-            navigate("/admin");
-            break;
-          default:
-            navigate("/home");
+          case "student": navigate("/student"); break;
+          case "lecture": navigate("/lecturer"); break;
+          case "program_leader": navigate("/leader"); break;
+          case "principal_lecture": navigate("/principal"); break;
+          case "admin": navigate("/admin"); break;
+          default: navigate("/home");
         }
       } else {
         setError("Signup failed. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      setError("⚠️ Signup failed. Server error.");
+      setError("Server error. Signup failed.");
     } finally {
       setLoading(false);
     }
@@ -114,7 +91,7 @@ function Signup() {
           <input
             type="text"
             name="username"
-            placeholder="👤 Username"
+            placeholder="Username"
             value={formData.username}
             onChange={handleChange}
             required
@@ -123,18 +100,18 @@ function Signup() {
           <input
             type="email"
             name="email"
-            placeholder="📧 Email"
+            placeholder="Email"
             value={formData.email}
             onChange={handleChange}
             required
             className={!emailValid ? "invalid" : ""}
           />
-          {!emailValid && <p className="error">⚠️ Please enter a valid email format.</p>}
+          {!emailValid && <p className="error">Invalid email format.</p>}
 
           <input
             type="password"
             name="password"
-            placeholder="🔑 Password"
+            placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             required
@@ -148,27 +125,27 @@ function Signup() {
           <input
             type="password"
             name="passwordConfirm"
-            placeholder="✅ Confirm Password"
+            placeholder="Confirm Password"
             value={formData.passwordConfirm}
             onChange={handleChange}
             required
           />
 
           <select name="role" value={formData.role} onChange={handleChange} required>
-            <option value="student">🎓 Student</option>
-            <option value="lecture">👨‍🏫 Lecturer</option>
-            <option value="program_leader">📘 Leader</option>
-            <option value="principal_lecture">🏛️ Principal</option>
-            <option value="admin">⚙️ Admin</option>
+            <option value="student">Student</option>
+            <option value="lecture">Lecturer</option>
+            <option value="program_leader">Program Leader</option>
+            <option value="principal_lecture">Principal</option>
+            <option value="admin">Admin</option>
           </select>
 
           <button type="submit" disabled={loading || !emailValid}>
-            {loading ? "Signing up..." : "Signup"}
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
 
         <p className="login-link">
-          Already have an account? <Link to="/">Login here</Link>
+          Already have an account? <Link to="/login">Login here</Link>
         </p>
       </div>
     </div>

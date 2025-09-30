@@ -7,8 +7,10 @@ function Footer() {
   return (
     <footer className="app-footer">
       <div className="footer-content">
-        <p>© {year} LUCT Reports. All rights reserved.</p>
-        <p>Powered by <strong>me</strong></p>
+        <p className="footer-text">© {year} LUCT Reports. All rights reserved.</p>
+        <p className="footer-text">
+          Powered by <strong className="footer-brand">PrimeAI Analytics</strong>
+        </p>
       </div>
     </footer>
   );

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import './leader.css';
-import Navbar from './navbar';
 
 const ProgramLeader = () => {
   // -------------------- Data States --------------------
@@ -274,8 +273,6 @@ const ProgramLeader = () => {
 
   return (
     <div className="pl-page">
-      <Navbar/>
-      <h2>Program Leader Dashboard</h2>
 
       <div className="button-group">
         <button onClick={() => setView('faculties')}>View Faculties</button>

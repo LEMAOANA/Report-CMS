@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./student.css";
-import Navbar from "./navbar";
 
 function Student() {
   const [reports, setReports] = useState([]);
@@ -83,90 +82,102 @@ function Student() {
 
   return (
     <div className="student-container">
-      <Navbar/>
-      <h1>Student Dashboard</h1>
-      <p>View all reports or your classes below.</p>
-
-      <div className="student-buttons">
-        <button onClick={() => setViewTab("reports")}>View Reports</button>
-        <button onClick={() => setViewTab("classes")}>View Classes</button>
+      {/* Card Tabs */}
+      <div className="student-cards">
+        <div
+          className={`card-tab ${viewTab === "reports" ? "active" : ""}`}
+          onClick={() => setViewTab("reports")}
+        >
+          View Reports
+        </div>
+        <div
+          className={`card-tab ${viewTab === "classes" ? "active" : ""}`}
+          onClick={() => setViewTab("classes")}
+        >
+          View Classes
+        </div>
       </div>
 
-      {/* -------------------- Conditional Rendering -------------------- */}
+      {/* -------------------- Reports Table -------------------- */}
       {viewTab === "reports" && (
-        <div className="reports-section">
-          <h3>All Reports</h3>
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Course</th>
-                <th>Class</th>
-                <th>Date</th>
-                <th>Topic</th>
-                <th>Learning Outcomes</th>
-                <th>Lecturer Recommendations</th>
-                <th>Rating</th>
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Week</th>
+              <th>Date</th>
+              <th>Course</th>
+              <th>Class</th>
+              <th>Students Present</th>
+              <th>Total Students</th>
+              <th>Venue</th>
+              <th>Scheduled Time</th>
+              <th>Topic</th>
+              <th>Learning Outcomes</th>
+              <th>Lecturer Recommendations</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reports.map((r) => (
+              <tr key={r.id}>
+                <td>{r.id}</td>
+                <td>{r.weekOfReporting}</td>
+                <td>{r.dateOfLecture}</td>
+                <td>{r.Course?.name || "N/A"}</td>
+                <td>{r.Class?.name || "N/A"}</td>
+                <td>{r.actualStudentsPresent}</td>
+                <td>{r.totalRegisteredStudents}</td>
+                <td>{r.venue}</td>
+                <td>{r.scheduledTime}</td>
+                <td>{r.topicTaught}</td>
+                <td>{r.learningOutcomes}</td>
+                <td>{r.lecturerRecommendations}</td>
+                <td>
+                  <div className="star-rating">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        className={getRatingForReport(r.id) >= star ? "star filled" : "star"}
+                        onClick={() => sendRating(r.id, star)}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {reports.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.id}</td>
-                  <td>{r.Course?.name || "N/A"}</td>
-                  <td>{r.Class?.name || "N/A"}</td>
-                  <td>{r.dateOfLecture}</td>
-                  <td>{r.topicTaught}</td>
-                  <td>{r.learningOutcomes}</td>
-                  <td>{r.lecturerRecommendations}</td>
-                  <td>
-                    <div className="star-rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                          key={star}
-                          className={getRatingForReport(r.id) >= star ? "star filled" : "star"}
-                          onClick={() => sendRating(r.id, star)}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       )}
 
+      {/* -------------------- Classes Table -------------------- */}
       {viewTab === "classes" && (
-        <div className="classes-section">
-          <h3>My Classes</h3>
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Year</th>
-                <th>Semester</th>
-                <th>Venue</th>
-                <th>Scheduled Time</th>
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Year</th>
+              <th>Semester</th>
+              <th>Venue</th>
+              <th>Scheduled Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {classes.map((c) => (
+              <tr key={c.id}>
+                <td>{c.id}</td>
+                <td>{c.name}</td>
+                <td>{c.year}</td>
+                <td>{c.semester}</td>
+                <td>{c.venue}</td>
+                <td>{c.scheduledTime}</td>
               </tr>
-            </thead>
-            <tbody>
-              {classes.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.id}</td>
-                  <td>{c.name}</td>
-                  <td>{c.year}</td>
-                  <td>{c.semester}</td>
-                  <td>{c.venue}</td>
-                  <td>{c.scheduledTime}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -1,27 +1,43 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import Home from "./components/home";
+import Home from "./components/home"; // landing page
 import Login from "./components/login";
-import Signup from "./components/signup"; // Signup component
+import Signup from "./components/signup";
 import Student from "./components/student";
 import Lecturer from "./components/lecturer";
 import Principal from "./components/principal";
 import Leader from "./components/leader";
-import ProtectedRoute from "./components/ProtectedRoute"; // ProtectedRoute
+import Admin from "./components/admin"; // Admin dashboard
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+function AppWrapper() {
   return (
     <Router>
-      {/* Main content */}
+      <App />
+    </Router>
+  );
+}
+
+function App() {
+  const location = useLocation();
+
+  // Always show Navbar on home page, login, signup, and all other pages
+  const showNavbar = true;
+
+  return (
+    <>
+      {showNavbar && <Navbar />}
+
       <div className="main-content" style={{ minHeight: "80vh" }}>
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Login />} />
+          {/* Public pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/home" element={<Home />} />
 
-          {/* Protected routes */}
+          {/* Protected pages */}
           <Route
             path="/student"
             element={
@@ -58,7 +74,7 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute role="admin">
-                <Home /> {/* or Admin component if you have one */}
+                <Admin /> {/* Admin dashboard */}
               </ProtectedRoute>
             }
           />
@@ -66,8 +82,8 @@ function App() {
       </div>
 
       <Footer />
-    </Router>
+    </>
   );
 }
 
-export default App;
+export default AppWrapper;

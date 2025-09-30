@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import './principal.css';
-import Navbar from './navbar';
 
 const Principal = () => {
   const [faculties, setFaculties] = useState([]);
@@ -67,10 +66,6 @@ const Principal = () => {
 
   return (
     <div className="prl-page">
-      {/* Navbar at the top */}
-      <Navbar />
-
-      <h2>Principal Lecturer (PRL)</h2>
 
       <div className="prl-actions">
         <div className="prl-card" onClick={() => handleShowTable('faculties')}>

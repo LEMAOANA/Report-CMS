@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../services/api"; // make sure your API returns { token, user }
+import "./login.css";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -14,52 +16,42 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const data = await login(formData);
-      console.log("Login response:", data);
 
       if (data.token && data.user) {
-        // Store full user info
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
-        localStorage.setItem("user", JSON.stringify(data.user)); // <- needed for navbar
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Redirect based on role
         switch (data.user.role) {
-          case "student":
-            navigate("/student");
-            break;
-          case "lecture":
-            navigate("/lecturer");
-            break;
-          case "program_leader":
-            navigate("/leader");
-            break;
-          case "principal_lecture":
-            navigate("/principal");
-            break;
-          case "admin":
-            navigate("/admin");
-            break;
-          default:
-            navigate("/home");
+          case "student": navigate("/student"); break;
+          case "lecture": navigate("/lecturer"); break;
+          case "program_leader": navigate("/leader"); break;
+          case "principal_lecture": navigate("/principal"); break;
+          case "admin": navigate("/admin"); break;
+          default: navigate("/home");
         }
       } else {
-        setError("Login failed. Please check your credentials.");
+        setError("Login failed. Check your credentials.");
       }
     } catch (err) {
       console.error(err);
       setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div className="login-wrapper">
+      <div className="login-container">
+        <h2>Login</h2>
+        {error && <p className="error">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
             name="email"
@@ -68,8 +60,6 @@ function Login() {
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
           <input
             type="password"
             name="password"
@@ -78,15 +68,16 @@ function Login() {
             onChange={handleChange}
             required
           />
-        </div>
-        <button type="submit" style={{ marginTop: "10px" }}>
-          Login
-        </button>
-      </form>
 
-      <p style={{ marginTop: "15px" }}>
-        Don't have an account? <Link to="/signup">Sign up here</Link>
-      </p>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <p className="signup-link">
+          Don't have an account? <Link to="/signup">Sign up here</Link>
+        </p>
+      </div>
     </div>
   );
 }

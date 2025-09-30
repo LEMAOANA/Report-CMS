@@ -1,42 +1,30 @@
-:root {
-  --primary-color: #007aff;
-  --secondary-color: #f5f5f7;
-  --text-color: #1d1d1f;
-  --card-bg: #ffffff;
-  --card-shadow: rgba(0, 0, 0, 0.08);
-  --active-color: #005fcc;
-}
-
-/* Page Container */
-.pl-page {
+.admin-page {
   max-width: 1100px;
   margin: 40px auto;
   padding: 20px;
-  background-color: var(--secondary-color);
-  color: var(--text-color);
+  background-color: #f5f5f7;
+  color: #1d1d1f;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.pl-page h2 {
+.admin-page h2 {
   font-size: 2rem;
   margin-bottom: 20px;
-  color: var(--primary-color);
+  color: #007aff;
 }
 
-/* Buttons Group */
+/* Buttons */
 .button-group {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 30px;
-  justify-content: center;
 }
 
 .button-group button {
   padding: 10px 16px;
   border-radius: 8px;
   border: none;
-  background-color: var(--primary-color);
+  background-color: #007aff;
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -44,45 +32,44 @@
 }
 
 .button-group button:hover {
-  background-color: var(--active-color);
+  background-color: #005fcc;
 }
 
-/* Tables */
-.faculty-table {
+/* Table */
+.admin-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--card-bg);
+  background-color: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 5px 15px var(--card-shadow);
-  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-.faculty-table th,
-.faculty-table td {
+.admin-table th,
+.admin-table td {
   padding: 12px 10px;
   text-align: left;
   font-size: 0.9rem;
   border-bottom: 1px solid #eee;
 }
 
-.faculty-table th {
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
+.admin-table th {
+  background-color: #f5f5f7;
+  color: #007aff;
 }
 
-.faculty-table tr:hover {
+.admin-table tr:hover {
   background-color: #f0f8ff;
 }
 
-/* Modal Styling */
+/* Modal */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,17 +77,16 @@
 }
 
 .modal-content {
-  background-color: var(--card-bg);
+  background-color: #fff;
   padding: 25px;
   border-radius: 12px;
   width: 400px;
   max-width: 90%;
-  box-shadow: 0 10px 25px var(--card-shadow);
-  text-align: left;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 .modal-content h3 {
-  color: var(--primary-color);
+  color: #007aff;
   margin-bottom: 15px;
 }
 
@@ -121,43 +107,36 @@
   gap: 10px;
 }
 
-.modal-actions button {
+.modal-actions button:first-child {
+  background-color: #007aff;
+  color: #fff;
   padding: 8px 14px;
   border-radius: 8px;
   border: none;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-}
-
-.modal-actions button:first-child {
-  background-color: var(--primary-color);
-  color: #fff;
 }
 
 .modal-actions button:first-child:hover {
-  background-color: var(--active-color);
+  background-color: #005fcc;
 }
 
 .modal-actions button:last-child {
   background-color: #eee;
   color: #333;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
 }
 
 .modal-actions button:last-child:hover {
   background-color: #ddd;
 }
 
-/* Table Container */
-.table-container {
-  overflow-x: auto;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .button-group {
     flex-direction: column;
-    align-items: center;
   }
 
   .modal-content {

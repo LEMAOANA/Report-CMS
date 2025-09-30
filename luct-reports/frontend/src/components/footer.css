@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   border-top: 1px solid #2d3748;
   width: 100%;                      /* Full width */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* subtle shadow for separation */
 }
 
 .footer-content {
@@ -18,9 +19,19 @@
 .footer-content p {
   margin: 0;
   font-size: 14px;
+  line-height: 1.4;
 }
 
 .footer-content strong {
-  color: #63b3ed;
+  color: #63b3ed; /* accent color for brand */
   font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .footer-content {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 90%;
+    margin: 0 auto;
+  }
 }
