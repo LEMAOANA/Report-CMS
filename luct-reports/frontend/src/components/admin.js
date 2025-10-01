@@ -8,7 +8,7 @@ const Admin = () => {
   const [modalData, setModalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
 
-  const roles = ["student", "lecturer", "program_leader", "principal_lecturer", "admin"];
+  const roles = ["student", "lecturer", "principal_lecturer", "program_leader", "admin"];
 
   // Fetch all users
   const fetchUsers = async () => {

@@ -15,8 +15,8 @@ function Signup() {
   const [roles, setRoles] = useState([
     "student",
     "lecturer",
-    "program_leader",
-    "principal_lecturer"
+    "principal_lecturer",
+     "program_leader"
   ]); // Admin removed
 
   const [error, setError] = useState("");
