@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+// src/components/Signup.js
+
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { signup } from "../services/api";
+import { signup } from "../services/api"; // service uses REACT_APP_BASE_URL
 import "./signup.css";
 
 function Signup() {
@@ -12,74 +14,29 @@ function Signup() {
     role: "student",
   });
 
-  const [roles, setRoles] = useState([
+  const [roles] = useState([
     "student",
     "lecturer",
     "principal_lecturer",
-     "program_leader"
+    "program_leader",
   ]); // Admin removed
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState("");
-  const [emailValid, setEmailValid] = useState(true);
   const navigate = useNavigate();
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // Optional: Check if admin exists on load (so you could later show admin-only role)
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const res = await fetch("http://localhost:3000/api/users");
-        const data = await res.json();
-        if (data.users.some(u => u.role === "admin")) {
-          console.log("Admin exists, signup will not allow admin role");
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    checkAdmin();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
-    if (name === "password") checkPasswordStrength(value);
-    if (name === "email") setEmailValid(emailRegex.test(value));
-  };
-
-  const checkPasswordStrength = (password) => {
-    if (password.length < 6) setPasswordStrength("Weak");
-    else if (/[A-Z]/.test(password) && /\d/.test(password) && /[@$!%*?&]/.test(password))
-      setPasswordStrength("Strong");
-    else setPasswordStrength("Medium");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (formData.password !== formData.passwordConfirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    if (passwordStrength === "Weak") {
-      setError("Please choose a stronger password.");
-      return;
-    }
+    setLoading(true);
 
     try {
-      setLoading(true);
-      const data = await signup(formData);
+      const data = await signup(formData); // Hits deployed backend automatically
 
       if (data.token && data.user) {
         localStorage.setItem("token", data.token);
@@ -103,7 +60,7 @@ function Signup() {
             navigate("/home");
         }
       } else {
-        setError("Signup failed. Please try again.");
+        setError("Signup failed. Please check your details.");
       }
     } catch (err) {
       console.error(err);
@@ -112,6 +69,9 @@ function Signup() {
       setLoading(false);
     }
   };
+
+  // Optional: log which backend is being used
+  console.log("Signup backend:", process.env.REACT_APP_BASE_URL);
 
   return (
     <div className="signup-wrapper">
@@ -136,9 +96,7 @@ function Signup() {
             value={formData.email}
             onChange={handleChange}
             required
-            className={!emailValid ? "invalid" : ""}
           />
-          {!emailValid && <p className="error">Invalid email format.</p>}
 
           <input
             type="password"
@@ -148,11 +106,6 @@ function Signup() {
             onChange={handleChange}
             required
           />
-          {formData.password && (
-            <p className={`strength ${passwordStrength.toLowerCase()}`}>
-              Password Strength: {passwordStrength}
-            </p>
-          )}
 
           <input
             type="password"
@@ -169,14 +122,14 @@ function Signup() {
             onChange={handleChange}
             required
           >
-            {roles.map(role => (
+            {roles.map((role) => (
               <option key={role} value={role}>
-                {role.replace('_', ' ').toUpperCase()}
+                {role.replace("_", " ").toUpperCase()}
               </option>
             ))}
           </select>
 
-          <button type="submit" disabled={loading || !emailValid}>
+          <button type="submit" disabled={loading}>
             {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>

@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Enable CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: "http://localhost:3001", // your frontend URL
   credentials: true
 }));
 
