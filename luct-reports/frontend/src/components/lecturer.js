@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from "react";
 import "./lecturer.css";
 
-// Use the environment variable for backend
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 function LecturerPage() {
+  // -------------------- State --------------------
   const [reports, setReports] = useState([]);
+  const [ratings, setRatings] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [classes, setClasses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
 
   const [showAddReportModal, setShowAddReportModal] = useState(false);
+  const [showAddRatingModal, setShowAddRatingModal] = useState(false);
   const [showClasses, setShowClasses] = useState(false);
   const [showReports, setShowReports] = useState(false);
+  const [showRatings, setShowRatings] = useState(false);
 
   const [newReport, setNewReport] = useState({
     facultyId: "",
@@ -31,6 +34,12 @@ function LecturerPage() {
     lecturerRecommendations: "",
   });
 
+  const [newRating, setNewRating] = useState({
+    reportId: "",
+    score: "",
+    feedback: "",
+  });
+
   // -------------------- Fetch Data --------------------
   const fetchReports = async () => {
     try {
@@ -39,6 +48,16 @@ function LecturerPage() {
       setReports(data.reports || []);
     } catch (err) {
       console.error("Error fetching reports:", err);
+    }
+  };
+
+  const fetchRatings = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/ratings`);
+      const data = await res.json();
+      setRatings(data.ratings || []);
+    } catch (err) {
+      console.error("Error fetching ratings:", err);
     }
   };
 
@@ -84,6 +103,7 @@ function LecturerPage() {
 
   useEffect(() => {
     fetchReports();
+    fetchRatings();
     fetchFaculties();
     fetchCourses();
     fetchClasses();
@@ -93,7 +113,6 @@ function LecturerPage() {
   // -------------------- CRUD --------------------
   const addReport = async () => {
     if (Object.values(newReport).some((v) => v === "")) return alert("Please fill all fields");
-
     try {
       const res = await fetch(`${BASE_URL}/reports`, {
         method: "POST",
@@ -110,6 +129,25 @@ function LecturerPage() {
         });
         setShowAddReportModal(false);
         fetchReports();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const addRating = async () => {
+    if (!newRating.reportId || !newRating.score) return alert("Please select report and score");
+    try {
+      const res = await fetch(`${BASE_URL}/ratings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRating),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setNewRating({ reportId: "", score: "", feedback: "" });
+        setShowAddRatingModal(false);
+        fetchRatings();
       }
     } catch (err) {
       console.error(err);
@@ -141,13 +179,16 @@ function LecturerPage() {
     }
   };
 
+  // -------------------- Render --------------------
   return (
     <div className="lecturer-container">
       {/* Action Cards */}
       <div className="lecturer-cards">
         <div className={`card-tab ${showClasses ? "active" : ""}`} onClick={() => setShowClasses(!showClasses)}>View Classes</div>
         <div className={`card-tab ${showReports ? "active" : ""}`} onClick={() => setShowReports(!showReports)}>View Reports</div>
+        <div className={`card-tab ${showRatings ? "active" : ""}`} onClick={() => setShowRatings(!showRatings)}>View Ratings</div>
         <div className="card-tab" onClick={() => setShowAddReportModal(true)}>Add Report</div>
+        <div className="card-tab" onClick={() => setShowAddRatingModal(true)}>Add Rating</div>
       </div>
 
       {/* Classes Table */}
@@ -217,6 +258,27 @@ function LecturerPage() {
         </table>
       )}
 
+      {/* Ratings Table */}
+      {showRatings && (
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Report ID</th><th>Score</th><th>Feedback</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ratings.map((r) => (
+              <tr key={r.id}>
+                <td>{r.id}</td>
+                <td>{r.reportId}</td>
+                <td>{r.score}</td>
+                <td>{r.feedback}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
       {/* Add Report Modal */}
       {showAddReportModal && (
         <div className="modal-overlay">
@@ -239,7 +301,6 @@ function LecturerPage() {
                 <option value="">Select Lecturer</option>
                 {lecturers.map((l) => <option key={l.id} value={l.id}>{l.username}</option>)}
               </select>
-
               <input type="number" placeholder="Week of Reporting" value={newReport.weekOfReporting} onChange={(e) => setNewReport({ ...newReport, weekOfReporting: e.target.value })}/>
               <input type="date" placeholder="Date of Lecture" value={newReport.dateOfLecture} onChange={(e) => setNewReport({ ...newReport, dateOfLecture: e.target.value })}/>
               <input type="number" placeholder="Actual Students Present" value={newReport.actualStudentsPresent} onChange={(e) => setNewReport({ ...newReport, actualStudentsPresent: e.target.value })}/>
@@ -249,11 +310,41 @@ function LecturerPage() {
               <input type="text" placeholder="Topic Taught" value={newReport.topicTaught} onChange={(e) => setNewReport({ ...newReport, topicTaught: e.target.value })}/>
               <input type="text" placeholder="Learning Outcomes" value={newReport.learningOutcomes} onChange={(e) => setNewReport({ ...newReport, learningOutcomes: e.target.value })}/>
               <input type="text" placeholder="Lecturer Recommendations" value={newReport.lecturerRecommendations} onChange={(e) => setNewReport({ ...newReport, lecturerRecommendations: e.target.value })}/>
-
               <div className="modal-buttons">
                 <button onClick={addReport}>Submit</button>
                 <button onClick={() => setShowAddReportModal(false)}>Cancel</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Rating Modal */}
+      {showAddRatingModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Submit New Rating</h3>
+            <select value={newRating.reportId} onChange={(e) => setNewRating({ ...newRating, reportId: e.target.value })}>
+              <option value="">Select Report</option>
+              {reports.map(r => <option key={r.id} value={r.id}>{`Report ${r.id} - ${r.topicTaught}`}</option>)}
+            </select>
+            <input
+              type="number"
+              placeholder="Score (1-5)"
+              min="1"
+              max="5"
+              value={newRating.score}
+              onChange={(e) => setNewRating({ ...newRating, score: e.target.value })}
+            />
+            <input
+              type="text"
+              placeholder="Feedback"
+              value={newRating.feedback}
+              onChange={(e) => setNewRating({ ...newRating, feedback: e.target.value })}
+            />
+            <div className="modal-buttons">
+              <button onClick={addRating}>Submit</button>
+              <button onClick={() => setShowAddRatingModal(false)}>Cancel</button>
             </div>
           </div>
         </div>

@@ -1,38 +1,40 @@
 /* Mac-inspired colors */
 :root {
-  --primary-color: #007aff;    /* macOS blue */
-  --secondary-color: #f5f5f7;  /* light grey background */
-  --text-color: #1d1d1f;       /* dark text */
-  --card-bg: #ffffff;           /* white cards */
-  --card-shadow: rgba(0, 0, 0, 0.08);
-  --btn-color: #007aff;
+  --primary-color: blue;    /* macOS blue */
+  --secondary-color: blue;  /* Blue background for page */
+  --text-color: #ffffff;       /* White text for contrast */
+  --card-bg: #f5f5f7;          /* Light cards */
+  --card-shadow: rgba(0, 0, 0, 0.15);
+  --btn-color: blue;
   --btn-text: #ffffff;
 }
 
 body {
   margin: 0;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: var(--secondary-color);
+  background: radial-gradient(circle at top left, #f6f7f9, #899cb0,rgb(106, 134, 177));
   color: var(--text-color);
 }
 
 /* Hero Section */
 .hero {
-  background-color: var(--card-bg);
+  background-color: var(--card-bg); /* Light card to contrast with blue */
   text-align: center;
-  padding: 60px 20px; /* smaller padding */
-  border-radius: 15px;
-  margin: 20px;
-  box-shadow: 0 8px 20px var(--card-shadow);
+  padding: 60px 20px;
+  border-radius: 20px; /* more rounded */
+  margin: 40px auto;
+  max-width: 900px;
+  box-shadow: 0 10px 25px var(--card-shadow); /* stronger shadow */
 }
 
 .hero h1 {
-  font-size: 2rem; /* smaller title */
+  font-size: 2rem;
   margin-bottom: 10px;
+  color: #1d1d1f;
 }
 
 .hero p {
-  font-size: 1rem; /* smaller subtitle */
+  font-size: 1rem;
   margin-bottom: 20px;
   color: #3c3c4399;
 }
@@ -40,8 +42,8 @@ body {
 .hero .btn {
   background-color: var(--btn-color);
   color: var(--btn-text);
-  padding: 10px 25px; /* smaller button */
-  border-radius: 8px;
+  padding: 12px 30px; /* slightly bigger button */
+  border-radius: 12px;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s;
@@ -49,14 +51,14 @@ body {
 
 .hero .btn:hover {
   background-color: #005fcc;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 /* Cards Section */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* smaller cards */
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
   max-width: 1000px;
   margin: 40px auto;
   padding: 0 15px;
@@ -64,31 +66,32 @@ body {
 
 .card {
   background-color: var(--card-bg);
-  padding: 25px 15px; /* smaller padding */
-  border-radius: 15px;
-  box-shadow: 0 4px 15px var(--card-shadow);
+  padding: 30px 20px;
+  border-radius: 20px; /* more rounded */
+  box-shadow: 0 8px 20px var(--card-shadow);
   text-align: center;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px var(--card-shadow);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px var(--card-shadow);
 }
 
 .card .icon {
-  font-size: 35px; /* smaller icon */
+  font-size: 40px;
   color: var(--primary-color);
   margin-bottom: 15px;
 }
 
 .card h2 {
-  font-size: 1.2rem; /* smaller heading */
+  font-size: 1.3rem;
   margin-bottom: 10px;
+  color: #1d1d1f;
 }
 
 .card p {
-  font-size: 0.9rem; /* smaller text */
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.5;
   color: #3c3c4399;
 }

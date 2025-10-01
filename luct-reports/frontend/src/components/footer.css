@@ -1,12 +1,14 @@
 .app-footer {
-  background-color: #1a202c;       /* Dark background to match navbar */
+  background-color:  rgb(86, 137, 214);;       /* Dark background to match navbar */
   color: #e2e8f0;                  /* Light text for contrast */
   padding: 15px 20px;
   text-align: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   border-top: 1px solid #2d3748;
-  width: 100%;                      /* Full width */
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* subtle shadow for separation */
+  width: 95%;                      /* Slightly smaller so corners show */
+  margin: 0 auto 20px;             /* Centered with spacing at bottom */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border-radius: 15px;             /* Rounded edges */
 }
 
 .footer-content {
@@ -23,7 +25,7 @@
 }
 
 .footer-content strong {
-  color: #63b3ed; /* accent color for brand */
+  color: #63b3ed; /* Accent color for brand */
   font-weight: 600;
 }
 

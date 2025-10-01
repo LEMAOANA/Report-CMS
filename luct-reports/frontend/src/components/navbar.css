@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #1a202c;
+  background-color: rgb(86, 137, 214);
   padding: 10px 20px;
   color: #e2e8f0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -10,15 +10,24 @@
   top: 0;
   z-index: 1000;
   border-bottom: 2px solid #2d3748;
+
+  /* Rounded edges */
+  border-radius: 12px;
+
+  /* Make it slightly smaller so curves are visible */
+  width: 95%;
+  margin: 10px auto; /* centers the navbar */
 }
 
+/* Logo */
 .navbar-left .logo {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #63b3ed;
+  color: white;
   cursor: pointer;
 }
 
+/* Center navigation links */
 .navbar-center {
   display: flex;
   gap: 15px;
@@ -33,6 +42,7 @@
   left: 0;
   width: 100%;
   padding: 10px 0;
+  border-radius: 0 0 12px 12px; /* Rounded dropdown */
 }
 
 .nav-link {
@@ -51,6 +61,7 @@
   color: #1a202c;
 }
 
+/* Signup Button */
 .signup-btn {
   background-color: #63b3ed;
   color: #1a202c;
@@ -60,6 +71,7 @@
   background-color: #4299e1;
 }
 
+/* Right section */
 .navbar-right {
   display: flex;
   align-items: center;
@@ -104,7 +116,7 @@
   right: 0;
   background-color: #2d3748;
   border: 1px solid #4a5568;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -125,6 +137,7 @@
   color: #1a202c;
 }
 
+/* Mobile menu toggle */
 .menu-toggle {
   display: none;
   background: none;

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./home.css";
 import { FaUserGraduate, FaChalkboardTeacher, FaUniversity, FaProjectDiagram } from "react-icons/fa";
-
 function HomePage() {
   const [counts, setCounts] = useState({
     student: 0,
