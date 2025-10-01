@@ -19,10 +19,13 @@ const ProgramLeader = () => {
   const [modalData, setModalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
 
+  // -------------------- Backend Base URL --------------------
+  const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:3000/api';
+
   // -------------------- Fetch Functions --------------------
   const fetchFaculties = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/faculties');
+      const res = await fetch(`${BASE_URL}/faculties`);
       const data = await res.json();
       setFaculties(data.faculties || []);
     } catch (error) {
@@ -32,7 +35,7 @@ const ProgramLeader = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/users');
+      const res = await fetch(`${BASE_URL}/users`);
       const data = await res.json();
       setUsers(data.users || []);
     } catch (error) {
@@ -42,7 +45,7 @@ const ProgramLeader = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/courses');
+      const res = await fetch(`${BASE_URL}/courses`);
       const data = await res.json();
       setCourses(data.courses || []);
     } catch (error) {
@@ -52,7 +55,7 @@ const ProgramLeader = () => {
 
   const fetchClasses = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/classes');
+      const res = await fetch(`${BASE_URL}/classes`);
       const data = await res.json();
       setClasses(data.classes || []);
     } catch (error) {
@@ -71,9 +74,7 @@ const ProgramLeader = () => {
   const saveFaculty = async (id) => {
     if (!modalData.name?.trim()) return alert('Enter faculty name');
     const method = isEditing ? 'PUT' : 'POST';
-    const url = isEditing
-      ? `http://localhost:3000/api/faculties/${id}`
-      : `http://localhost:3000/api/faculties`;
+    const url = isEditing ? `${BASE_URL}/faculties/${id}` : `${BASE_URL}/faculties`;
 
     try {
       const res = await fetch(url, {
@@ -95,9 +96,7 @@ const ProgramLeader = () => {
     const { name, code, description, facultyId, programLeaderId, principalLecturerId } = modalData;
     if (!name || !code || !facultyId) return alert('Fill in required fields');
     const method = isEditing ? 'PUT' : 'POST';
-    const url = isEditing
-      ? `http://localhost:3000/api/courses/${id}`
-      : `http://localhost:3000/api/courses`;
+    const url = isEditing ? `${BASE_URL}/courses/${id}` : `${BASE_URL}/courses`;
 
     try {
       const res = await fetch(url, {
@@ -121,9 +120,7 @@ const ProgramLeader = () => {
       return alert('Fill in all fields');
 
     const method = isEditing ? 'PUT' : 'POST';
-    const url = isEditing
-      ? `http://localhost:3000/api/classes/${id}`
-      : `http://localhost:3000/api/classes`;
+    const url = isEditing ? `${BASE_URL}/classes/${id}` : `${BASE_URL}/classes`;
 
     try {
       const res = await fetch(url, {
@@ -144,7 +141,7 @@ const ProgramLeader = () => {
   const deleteItem = async (type, id) => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/${type}/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${BASE_URL}/${type}/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.status === 'success') {
         if (type === 'faculties') fetchFaculties();
@@ -307,7 +304,7 @@ const ProgramLeader = () => {
 
       <div className="table-container">{renderTable()}</div>
 
-      {/* -------------------- Faculty Modal -------------------- */}
+      {/* -------------------- Modals -------------------- */}
       {showFacultyModal && (
         <div className="modal">
           <div className="modal-content">
@@ -326,7 +323,6 @@ const ProgramLeader = () => {
         </div>
       )}
 
-      {/* -------------------- Course Modal -------------------- */}
       {showCourseModal && (
         <div className="modal">
           <div className="modal-content">
@@ -384,7 +380,6 @@ const ProgramLeader = () => {
         </div>
       )}
 
-      {/* -------------------- Class Modal -------------------- */}
       {showClassModal && (
         <div className="modal">
           <div className="modal-content">

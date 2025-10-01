@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./admin.css";
 
+// Use the deployed backend URL from .env
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const Admin = () => {
   const [users, setUsers] = useState([]);
   const [selectedRole, setSelectedRole] = useState(""); 
@@ -13,7 +16,7 @@ const Admin = () => {
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/users");
+      const res = await fetch(`${BASE_URL}/users`);
       const data = await res.json();
       setUsers(data.users || []);
     } catch (err) {
@@ -47,16 +50,14 @@ const Admin = () => {
     if (!username || !email || (!isEditing && (!password || !passwordConfirm))) {
       return alert("Please fill in all required fields");
     }
-
     if (!isEditing && password !== passwordConfirm) {
       return alert("Passwords do not match");
     }
 
-    // Prevent changing role for admin
     const payload = { ...modalData };
     if (isEditing && modalData.role === "admin") delete payload.role;
 
-    const url = isEditing ? `http://localhost:3000/api/users/${id}` : "http://localhost:3000/api/users";
+    const url = isEditing ? `${BASE_URL}/users/${id}` : `${BASE_URL}/users`;
     const method = isEditing ? "PUT" : "POST";
 
     try {
@@ -78,10 +79,10 @@ const Admin = () => {
   };
 
   const deleteUser = async (id, role) => {
-    if (role === "admin") return; // prevent deleting admins
+    if (role === "admin") return;
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/users/${id}`, { method: "DELETE" });
+      const res = await fetch(`${BASE_URL}/users/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.status === "success") fetchUsers();
       else alert(data.message || "Failed to delete user");
@@ -179,7 +180,6 @@ const Admin = () => {
                 />
               </>
             )}
-            {/* Disable role editing for admins */}
             <select
               value={modalData.role || ""}
               onChange={(e) => setModalData({ ...modalData, role: e.target.value })}

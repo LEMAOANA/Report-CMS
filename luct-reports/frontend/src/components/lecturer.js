@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./lecturer.css";
 
+// Use the environment variable for backend
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 function LecturerPage() {
   const [reports, setReports] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -31,7 +34,7 @@ function LecturerPage() {
   // -------------------- Fetch Data --------------------
   const fetchReports = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/reports");
+      const res = await fetch(`${BASE_URL}/reports`);
       const data = await res.json();
       setReports(data.reports || []);
     } catch (err) {
@@ -41,7 +44,7 @@ function LecturerPage() {
 
   const fetchFaculties = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/faculties");
+      const res = await fetch(`${BASE_URL}/faculties`);
       const data = await res.json();
       setFaculties(data.faculties || []);
     } catch (err) {
@@ -51,7 +54,7 @@ function LecturerPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/courses");
+      const res = await fetch(`${BASE_URL}/courses`);
       const data = await res.json();
       setCourses(data.courses || []);
     } catch (err) {
@@ -61,7 +64,7 @@ function LecturerPage() {
 
   const fetchClasses = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/classes");
+      const res = await fetch(`${BASE_URL}/classes`);
       const data = await res.json();
       setClasses(data.classes || []);
     } catch (err) {
@@ -71,7 +74,7 @@ function LecturerPage() {
 
   const fetchLecturers = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/users");
+      const res = await fetch(`${BASE_URL}/users`);
       const data = await res.json();
       setLecturers(data.users.filter((u) => u.role === "lecture"));
     } catch (err) {
@@ -92,7 +95,7 @@ function LecturerPage() {
     if (Object.values(newReport).some((v) => v === "")) return alert("Please fill all fields");
 
     try {
-      const res = await fetch("http://localhost:3000/api/reports", {
+      const res = await fetch(`${BASE_URL}/reports`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newReport),
@@ -115,7 +118,7 @@ function LecturerPage() {
 
   const updateReport = async (id, updatedFields) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/reports/${id}`, {
+      const res = await fetch(`${BASE_URL}/reports/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedFields),
@@ -130,7 +133,7 @@ function LecturerPage() {
   const deleteReport = async (id) => {
     if (!window.confirm("Are you sure you want to delete this report?")) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/reports/${id}`, { method: "DELETE" });
+      const res = await fetch(`${BASE_URL}/reports/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.status === "success") fetchReports();
     } catch (err) {
@@ -140,26 +143,19 @@ function LecturerPage() {
 
   return (
     <div className="lecturer-container">
-
-      {/* -------------------- Action Cards -------------------- */}
+      {/* Action Cards */}
       <div className="lecturer-cards">
         <div className={`card-tab ${showClasses ? "active" : ""}`} onClick={() => setShowClasses(!showClasses)}>View Classes</div>
         <div className={`card-tab ${showReports ? "active" : ""}`} onClick={() => setShowReports(!showReports)}>View Reports</div>
         <div className="card-tab" onClick={() => setShowAddReportModal(true)}>Add Report</div>
       </div>
 
-      {/* -------------------- Classes Table -------------------- */}
+      {/* Classes Table */}
       {showClasses && (
         <table className="report-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Year</th>
-              <th>Semester</th>
-              <th>Course</th>
-              <th>Venue</th>
-              <th>Time</th>
+              <th>ID</th><th>Name</th><th>Year</th><th>Semester</th><th>Course</th><th>Venue</th><th>Time</th>
             </tr>
           </thead>
           <tbody>
@@ -181,25 +177,14 @@ function LecturerPage() {
         </table>
       )}
 
-      {/* -------------------- Reports Table -------------------- */}
+      {/* Reports Table */}
       {showReports && (
         <table className="report-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Faculty</th>
-              <th>Class</th>
-              <th>Course</th>
-              <th>Week</th>
-              <th>Date</th>
-              <th>Present</th>
-              <th>Total Students</th>
-              <th>Venue</th>
-              <th>Time</th>
-              <th>Topic</th>
-              <th>Outcomes</th>
-              <th>Recommendations</th>
-              <th>Actions</th>
+              <th>ID</th><th>Faculty</th><th>Class</th><th>Course</th><th>Week</th><th>Date</th>
+              <th>Present</th><th>Total Students</th><th>Venue</th><th>Time</th>
+              <th>Topic</th><th>Outcomes</th><th>Recommendations</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -232,7 +217,7 @@ function LecturerPage() {
         </table>
       )}
 
-      {/* -------------------- Add Report Modal -------------------- */}
+      {/* Add Report Modal */}
       {showAddReportModal && (
         <div className="modal-overlay">
           <div className="modal-content">

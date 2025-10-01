@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./student.css";
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 function Student() {
   const [reports, setReports] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
@@ -11,7 +13,7 @@ function Student() {
   // -------------------- Fetch Data --------------------
   const fetchReports = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/reports");
+      const res = await fetch(`${BASE_URL}/reports`);
       const data = await res.json();
       setReports(data.reports || []);
     } catch (err) {
@@ -21,7 +23,7 @@ function Student() {
 
   const fetchFeedbacks = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/reportFeedbacks");
+      const res = await fetch(`${BASE_URL}/reportFeedbacks`);
       const data = await res.json();
       setFeedbacks(data.feedbacks || []);
     } catch (err) {
@@ -31,7 +33,7 @@ function Student() {
 
   const fetchClasses = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/classes");
+      const res = await fetch(`${BASE_URL}/classes`);
       const data = await res.json();
       setClasses(data.classes || []);
     } catch (err) {
@@ -49,7 +51,6 @@ function Student() {
   const getFeedbackForReport = (reportId) =>
     feedbacks.find((f) => f.reportId === reportId && f.userId === userId);
 
-  // Update local feedbacks state immediately
   const updateLocalFeedback = (reportId, updated) => {
     setFeedbacks((prev) => {
       const idx = prev.findIndex((f) => f.reportId === reportId && f.userId === userId);
@@ -67,13 +68,12 @@ function Student() {
   const sendRating = async (reportId, rating) => {
     const existingFeedback = getFeedbackForReport(reportId);
 
-    // Update UI immediately
     updateLocalFeedback(reportId, { rating, comment: existingFeedback?.comment || "" });
 
     try {
       const url = existingFeedback
-        ? `http://localhost:3000/api/reportFeedbacks/${existingFeedback.id}`
-        : `http://localhost:3000/api/reportFeedbacks/${reportId}`;
+        ? `${BASE_URL}/reportFeedbacks/${existingFeedback.id}`
+        : `${BASE_URL}/reportFeedbacks/${reportId}`;
       const method = existingFeedback ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -87,7 +87,6 @@ function Student() {
       });
       const data = await res.json();
       if (!existingFeedback && data.feedback?.id) {
-        // Assign new ID to feedback in local state
         updateLocalFeedback(reportId, { id: data.feedback.id });
       }
     } catch (err) {
@@ -99,11 +98,10 @@ function Student() {
     const existingFeedback = getFeedbackForReport(reportId);
     if (!existingFeedback) return;
 
-    // Update UI immediately
     updateLocalFeedback(reportId, { comment });
 
     try {
-      await fetch(`http://localhost:3000/api/reportFeedbacks/${existingFeedback.id}`, {
+      await fetch(`${BASE_URL}/reportFeedbacks/${existingFeedback.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rating: existingFeedback.rating, comment }),
@@ -118,11 +116,10 @@ function Student() {
     if (!existingFeedback) return;
     if (!window.confirm("Are you sure you want to delete your feedback?")) return;
 
-    // Remove from UI immediately
     setFeedbacks((prev) => prev.filter((f) => f.reportId !== reportId || f.userId !== userId));
 
     try {
-      await fetch(`http://localhost:3000/api/reportFeedbacks/${existingFeedback.id}`, {
+      await fetch(`${BASE_URL}/reportFeedbacks/${existingFeedback.id}`, {
         method: "DELETE",
       });
     } catch (err) {
