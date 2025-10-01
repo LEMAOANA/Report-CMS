@@ -1,20 +1,20 @@
 C:\Users\LENONG>
-C:\Users\LENONG>curl -X POST http://localhost:3000/api/reportFeedback/3 -H "Content-Type: application/json" -d "{\"rating\":5,\"comment\":\"Great lecture!\",\"userId\":21}"
+C:\Users\LENONG>curl -X POST http://localhost:3000/api/reportFeedbacks/3 -H "Content-Type: application/json" -d "{\"rating\":5,\"comment\":\"Great lecture!\",\"userId\":21}"
 {"status":"success","feedback":{"id":2,"reportId":3,"rating":5,"comment":"Great lecture!","userId":21,"updatedAt":"2025-09-29T14:19:56.409Z","createdAt":"2025-09-29T14:19:56.409Z","ReportId":null,"UserId":null}}
 C:\Users\LENONG>
 C:\Users\LENONG>
-C:\Users\LENONG>curl -X GET http://localhost:3000/api/reportFeedback
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/reportFeedbacks
 {"status":"success","feedbacks":[{"id":1,"rating":5,"comment":"Great lecture!","createdAt":"2025-09-29T14:10:29.362Z","updatedAt":"2025-09-29T14:10:29.362Z","reportId":3,"userId":21,"ReportId":null,"UserId":null,"User":{"id":21,"username":"Mamacita","role":"lecture"},"Report":{"id":3,"weekOfReporting":6,"dateOfLecture":"2025-10-05","actualStudentsPresent":28,"totalRegisteredStudents":30,"venue":"Room 101","scheduledTime":"08:00:00","topicTaught":"Functions and Loops","learningOutcomes":"Understand basic functions and loops","lecturerRecommendations":"Practice exercises in class","createdAt":"2025-09-29T12:06:55.838Z","updatedAt":"2025-09-29T12:06:55.838Z","facultyId":1,"classId":7,"courseId":2,"lecturerId":null}},{"id":2,"rating":5,"comment":"Great lecture!","createdAt":"2025-09-29T14:19:56.409Z","updatedAt":"2025-09-29T14:19:56.409Z","reportId":3,"userId":21,"ReportId":null,"UserId":null,"User":{"id":21,"username":"Mamacita","role":"lecture"},"Report":{"id":3,"weekOfReporting":6,"dateOfLecture":"2025-10-05","actualStudentsPresent":28,"totalRegisteredStudents":30,"venue":"Room 101","scheduledTime":"08:00:00","topicTaught":"Functions and Loops","learningOutcomes":"Understand basic functions and loops","lecturerRecommendations":"Practice exercises in class","createdAt":"2025-09-29T12:06:55.838Z","updatedAt":"2025-09-29T12:06:55.838Z","facultyId":1,"classId":7,"courseId":2,"lecturerId":null}}]}
 C:\Users\LENONG>
 C:\Users\LENONG>
-C:\Users\LENONG>curl -X GET http://localhost:3000/api/reportFeedback/2
+C:\Users\LENONG>curl -X GET http://localhost:3000/api/reportFeedbacks/2
 {"status":"success","feedback":{"id":2,"rating":5,"comment":"Great lecture!","createdAt":"2025-09-29T14:19:56.409Z","updatedAt":"2025-09-29T14:19:56.409Z","reportId":3,"userId":21,"ReportId":null,"UserId":null,"User":{"id":21,"username":"Mamacita","role":"lecture"},"Report":{"id":3,"weekOfReporting":6,"dateOfLecture":"2025-10-05","actualStudentsPresent":28,"totalRegisteredStudents":30,"venue":"Room 101","scheduledTime":"08:00:00","topicTaught":"Functions and Loops","learningOutcomes":"Understand basic functions and loops","lecturerRecommendations":"Practice exercises in class","createdAt":"2025-09-29T12:06:55.838Z","updatedAt":"2025-09-29T12:06:55.838Z","facultyId":1,"classId":7,"courseId":2,"lecturerId":null}}}
 C:\Users\LENONG>
 C:\Users\LENONG>
-C:\Users\LENONG>curl -X PUT http://localhost:3000/api/reportFeedback/2 -H "Content-Type: application/json" -d "{\"rating\":4,\"comment\":\"Updated feedback: good lecture\"}"
+C:\Users\LENONG>curl -X PUT http://localhost:3000/api/reportFeedbacks/2 -H "Content-Type: application/json" -d "{\"rating\":4,\"comment\":\"Updated feedback: good lecture\"}"
 {"status":"success","feedback":{"id":2,"rating":4,"comment":"Updated feedback: good lecture","createdAt":"2025-09-29T14:19:56.409Z","updatedAt":"2025-09-29T14:21:20.659Z","reportId":3,"userId":21,"ReportId":null,"UserId":null}}
 C:\Users\LENONG>
 C:\Users\LENONG>
-C:\Users\LENONG>curl -X DELETE http://localhost:3000/api/reportFeedback/2
+C:\Users\LENONG>curl -X DELETE http://localhost:3000/api/reportFeedbacks/2
 {"status":"success","message":"Feedback deleted successfully"}
 C:\Users\LENONG>

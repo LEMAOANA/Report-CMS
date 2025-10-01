@@ -9,7 +9,7 @@ function Footer() {
       <div className="footer-content">
         <p className="footer-text">© {year} LUCT Reports. All rights reserved.</p>
         <p className="footer-text">
-          Powered by <strong className="footer-brand">PrimeAI Analytics</strong>
+          Powered by <strong className="footer-brand"></strong>
         </p>
       </div>
     </footer>

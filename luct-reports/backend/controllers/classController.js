@@ -1,83 +1,135 @@
 // controllers/classController.js
-import Class from "../models/Class.js";
+import ClassModel from "../models/Class.js";
 import Course from "../models/Course.js";
+import User from "../models/User.js";
 
-// Create a new class
+// -------------------- Create a new class --------------------
 export const createClass = async (req, res) => {
   try {
-    const { name, year, semester, venue, scheduledTime, totalRegisteredStudents, courseId } = req.body;
+    const { name, year, semester, venue, scheduledTime, courseId, lecturerId } = req.body;
 
-    // Validate required fields
-    if (!name || !year || !semester || !courseId) {
-      return res.status(400).json({ message: "Name, year, semester, and courseId are required" });
+    if (!name || !year || !semester || !courseId || !lecturerId) {
+      return res.status(400).json({ message: "Name, year, semester, courseId, and lecturerId are required" });
     }
 
-    // Check if course exists
     const course = await Course.findByPk(courseId);
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    const lecturer = await User.findByPk(lecturerId);
+    if (!lecturer || lecturer.role !== "lecturer") {
+      return res.status(404).json({ message: "Lecturer not found or invalid role" });
     }
 
-    const newClass = await Class.create({
+    const totalStudents = await User.count({ where: { role: "student" } });
+
+    const newClass = await ClassModel.create({
       name,
       year,
       semester,
       venue,
       scheduledTime,
-      totalRegisteredStudents,
-      courseId
+      courseId,
+      lecturerId,
+      totalRegisteredStudents: totalStudents,
     });
 
     res.status(201).json({ status: "success", class: newClass });
   } catch (err) {
-    console.error("CreateClass error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Get all classes
+// -------------------- Get all classes --------------------
 export const getAllClasses = async (req, res) => {
   try {
-    const classes = await Class.findAll({ include: { model: Course } });
+    const classes = await ClassModel.findAll({
+      include: [
+        { model: Course, attributes: ["id", "name"] },
+        { model: User, as: "lecturer", attributes: ["id", "username", "email", "role"] },
+      ],
+    });
     res.json({ status: "success", classes });
   } catch (err) {
-    console.error("GetAllClasses error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Get class by ID
+// -------------------- Get class by ID --------------------
 export const getClassById = async (req, res) => {
   try {
-    const singleClass = await Class.findByPk(req.params.id, { include: { model: Course } });
-    if (!singleClass) return res.status(404).json({ message: "Class not found" });
-    res.json({ status: "success", class: singleClass });
+    const cls = await ClassModel.findByPk(req.params.id, {
+      include: [
+        { model: Course, attributes: ["id", "name"] },
+        { model: User, as: "lecturer", attributes: ["id", "username", "email", "role"] },
+      ],
+    });
+    if (!cls) return res.status(404).json({ message: "Class not found" });
+    res.json({ status: "success", class: cls });
   } catch (err) {
-    console.error("GetClassById error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Update class by ID
+// -------------------- Update class --------------------
 export const updateClass = async (req, res) => {
   try {
-    const updated = await Class.update(req.body, { where: { id: req.params.id }, returning: true });
-    if (!updated[1][0]) return res.status(404).json({ message: "Class not found" });
-    res.json({ status: "success", class: updated[1][0] });
+    const cls = await ClassModel.findByPk(req.params.id);
+    if (!cls) return res.status(404).json({ message: "Class not found" });
+
+    const { name, year, semester, venue, scheduledTime, courseId, lecturerId } = req.body;
+
+    if (courseId) {
+      const course = await Course.findByPk(courseId);
+      if (!course) return res.status(404).json({ message: "Course not found" });
+    }
+
+    if (lecturerId) {
+      const lecturer = await User.findByPk(lecturerId);
+      if (!lecturer || lecturer.role !== "lecturer") {
+        return res.status(404).json({ message: "Lecturer not found or invalid role" });
+      }
+    }
+
+    const totalStudents = await User.count({ where: { role: "student" } });
+
+    await cls.update({
+      name,
+      year,
+      semester,
+      venue,
+      scheduledTime,
+      courseId,
+      lecturerId,
+      totalRegisteredStudents: totalStudents,
+    });
+
+    await cls.reload({
+      include: [
+        { model: Course, attributes: ["id", "name"] },
+        { model: User, as: "lecturer", attributes: ["id", "username", "email", "role"] },
+      ],
+    });
+
+    res.json({ status: "success", class: cls });
   } catch (err) {
-    console.error("UpdateClass error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Delete class by ID
+// -------------------- Delete class --------------------
 export const deleteClass = async (req, res) => {
   try {
-    const deleted = await Class.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ message: "Class not found" });
+    const cls = await ClassModel.findByPk(req.params.id);
+    if (!cls) return res.status(404).json({ message: "Class not found" });
+
+    await cls.destroy();
     res.json({ status: "success", message: "Class deleted successfully" });
   } catch (err) {
-    console.error("DeleteClass error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

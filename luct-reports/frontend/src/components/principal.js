@@ -16,33 +16,31 @@ const Principal = () => {
 
   const fetchData = async () => {
     try {
-      const fRes = await fetch('http://localhost:3000/api/faculties');
+      const [fRes, cRes, clRes, rRes, fbRes] = await Promise.all([
+        fetch('http://localhost:3000/api/faculties'),
+        fetch('http://localhost:3000/api/courses'),
+        fetch('http://localhost:3000/api/classes'),
+        fetch('http://localhost:3000/api/reports'),
+        fetch('http://localhost:3000/api/reportFeedbacks'),
+      ]);
+
       const fData = await fRes.json();
-      setFaculties(fData.faculties);
-
-      const cRes = await fetch('http://localhost:3000/api/courses');
       const cData = await cRes.json();
-      setCourses(cData.courses);
-
-      const clRes = await fetch('http://localhost:3000/api/classes');
       const clData = await clRes.json();
-      setClasses(clData.classes);
-
-      const rRes = await fetch('http://localhost:3000/api/reports');
       const rData = await rRes.json();
-      setReports(rData.reports);
-
-      const fbRes = await fetch('http://localhost:3000/api/reportFeedback');
       const fbData = await fbRes.json();
+
+      setFaculties(fData.faculties);
+      setCourses(cData.courses);
+      setClasses(clData.classes);
+      setReports(rData.reports);
       setFeedbacks(fbData.feedbacks);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  const handleShowTable = (table) => {
-    setActiveTable(table);
-  };
+  const handleShowTable = (table) => setActiveTable(table);
 
   const handleFeedbackChange = (e) => {
     setFeedbackData({ ...feedbackData, [e.target.name]: e.target.value });
@@ -51,12 +49,27 @@ const Principal = () => {
   const submitFeedback = async () => {
     if (!feedbackData.reportId) return alert('Select a report first!');
     try {
-      await fetch(`http://localhost:3000/api/reportFeedback/${feedbackData.reportId}`, {
-        method: 'PUT',
+      // Check if feedback exists for this report & current user
+      const existingFeedback = feedbacks.find(
+        (f) => f.reportId === parseInt(feedbackData.reportId)
+      );
+
+      const method = existingFeedback ? 'PUT' : 'POST';
+      const url = existingFeedback
+        ? `http://localhost:3000/api/reportFeedbacks/${existingFeedback.id}`
+        : `http://localhost:3000/api/reportFeedbacks/${feedbackData.reportId}`;
+
+      await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating: feedbackData.rating, comment: feedbackData.comment }),
+        body: JSON.stringify({
+          rating: feedbackData.rating,
+          comment: feedbackData.comment,
+          userId: JSON.parse(localStorage.getItem('user')).id,
+        }),
       });
-      alert('Feedback submitted!');
+
+      alert(`Feedback ${existingFeedback ? 'updated' : 'submitted'}!`);
       setFeedbackData({ rating: '', comment: '', reportId: null });
       fetchData(); // refresh
     } catch (err) {
@@ -64,9 +77,19 @@ const Principal = () => {
     }
   };
 
+  const deleteFeedback = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this feedback?')) return;
+    try {
+      await fetch(`http://localhost:3000/api/reportFeedbacks/${id}`, { method: 'DELETE' });
+      alert('Feedback deleted!');
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="prl-page">
-
       <div className="prl-actions">
         <div className="prl-card" onClick={() => handleShowTable('faculties')}>
           Faculties
@@ -86,15 +109,12 @@ const Principal = () => {
         </div>
       </div>
 
-      {/* Tables Rendering */}
+      {/* Table Rendering */}
       {activeTable === 'faculties' && (
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Created At</th>
-              <th>Updated At</th>
+              <th>ID</th><th>Name</th><th>Created At</th><th>Updated At</th>
             </tr>
           </thead>
           <tbody>
@@ -114,22 +134,14 @@ const Principal = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Description</th>
-              <th>Faculty</th>
-              <th>Created At</th>
-              <th>Updated At</th>
+              <th>ID</th><th>Name</th><th>Code</th><th>Description</th><th>Faculty</th>
+              <th>Created At</th><th>Updated At</th>
             </tr>
           </thead>
           <tbody>
             {courses.map(c => (
               <tr key={c.id}>
-                <td>{c.id}</td>
-                <td>{c.name}</td>
-                <td>{c.code}</td>
-                <td>{c.description}</td>
+                <td>{c.id}</td><td>{c.name}</td><td>{c.code}</td><td>{c.description}</td>
                 <td>{c.Faculty?.name}</td>
                 <td>{new Date(c.createdAt).toLocaleString()}</td>
                 <td>{new Date(c.updatedAt).toLocaleString()}</td>
@@ -143,29 +155,15 @@ const Principal = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Year</th>
-              <th>Semester</th>
-              <th>Venue</th>
-              <th>Time</th>
-              <th>Total Students</th>
-              <th>Course</th>
-              <th>Created At</th>
-              <th>Updated At</th>
+              <th>ID</th><th>Name</th><th>Year</th><th>Semester</th><th>Venue</th>
+              <th>Time</th><th>Total Students</th><th>Course</th><th>Created At</th><th>Updated At</th>
             </tr>
           </thead>
           <tbody>
             {classes.map(cl => (
               <tr key={cl.id}>
-                <td>{cl.id}</td>
-                <td>{cl.name}</td>
-                <td>{cl.year}</td>
-                <td>{cl.semester}</td>
-                <td>{cl.venue}</td>
-                <td>{cl.scheduledTime}</td>
-                <td>{cl.totalRegisteredStudents}</td>
-                <td>{cl.Course?.name}</td>
+                <td>{cl.id}</td><td>{cl.name}</td><td>{cl.year}</td><td>{cl.semester}</td><td>{cl.venue}</td>
+                <td>{cl.scheduledTime}</td><td>{cl.totalRegisteredStudents}</td><td>{cl.Course?.name}</td>
                 <td>{new Date(cl.createdAt).toLocaleString()}</td>
                 <td>{new Date(cl.updatedAt).toLocaleString()}</td>
               </tr>
@@ -179,30 +177,16 @@ const Principal = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Week</th>
-                <th>Date</th>
-                <th>Topic</th>
-                <th>Learning Outcomes</th>
-                <th>Recommendations</th>
-                <th>Faculty</th>
-                <th>Class</th>
-                <th>Course</th>
-                <th>Lecturer</th>
+                <th>ID</th><th>Week</th><th>Date</th><th>Topic</th><th>Learning Outcomes</th>
+                <th>Recommendations</th><th>Faculty</th><th>Class</th><th>Course</th><th>Lecturer</th>
               </tr>
             </thead>
             <tbody>
               {reports.map(r => (
                 <tr key={r.id}>
-                  <td>{r.id}</td>
-                  <td>{r.weekOfReporting}</td>
-                  <td>{r.dateOfLecture}</td>
-                  <td>{r.topicTaught}</td>
-                  <td>{r.learningOutcomes}</td>
-                  <td>{r.lecturerRecommendations}</td>
-                  <td>{r.Faculty?.name}</td>
-                  <td>{r.Class?.name}</td>
-                  <td>{r.Course?.name}</td>
+                  <td>{r.id}</td><td>{r.weekOfReporting}</td><td>{r.dateOfLecture}</td><td>{r.topicTaught}</td>
+                  <td>{r.learningOutcomes}</td><td>{r.lecturerRecommendations}</td>
+                  <td>{r.Faculty?.name}</td><td>{r.Class?.name}</td><td>{r.Course?.name}</td>
                   <td>{r.lecturer?.username}</td>
                 </tr>
               ))}
@@ -210,7 +194,7 @@ const Principal = () => {
           </table>
 
           {/* Feedback Form */}
-          <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'left' }}>
+          <div className="feedback-form">
             <h3>Submit Feedback for a Report</h3>
             <select
               name="reportId"
@@ -250,13 +234,8 @@ const Principal = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Report</th>
-                <th>User</th>
-                <th>Rating</th>
-                <th>Comment</th>
-                <th>Created At</th>
-                <th>Updated At</th>
+                <th>ID</th><th>Report</th><th>User</th><th>Rating</th><th>Comment</th>
+                <th>Created At</th><th>Updated At</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -269,6 +248,9 @@ const Principal = () => {
                   <td>{fb.comment}</td>
                   <td>{new Date(fb.createdAt).toLocaleString()}</td>
                   <td>{new Date(fb.updatedAt).toLocaleString()}</td>
+                  <td>
+                    <button onClick={() => deleteFeedback(fb.id)}>Delete</button>
+                  </td>
                 </tr>
               ))}
             </tbody>

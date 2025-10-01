@@ -1,15 +1,15 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import Home from "./components/home"; // landing page
+import Home from "./components/home";
 import Login from "./components/login";
 import Signup from "./components/signup";
 import Student from "./components/student";
 import Lecturer from "./components/lecturer";
 import Principal from "./components/principal";
 import Leader from "./components/leader";
-import Admin from "./components/admin"; // Admin dashboard
+import Admin from "./components/admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function AppWrapper() {
@@ -23,7 +23,7 @@ function AppWrapper() {
 function App() {
   const location = useLocation();
 
-  // Always show Navbar on home page, login, signup, and all other pages
+  // Navbar is always visible
   const showNavbar = true;
 
   return (
@@ -49,7 +49,7 @@ function App() {
           <Route
             path="/lecturer"
             element={
-              <ProtectedRoute role="lecture">
+              <ProtectedRoute role="lecturer">
                 <Lecturer />
               </ProtectedRoute>
             }
@@ -57,7 +57,7 @@ function App() {
           <Route
             path="/principal"
             element={
-              <ProtectedRoute role="principal_lecture">
+              <ProtectedRoute role="principal_lecturer">
                 <Principal />
               </ProtectedRoute>
             }
@@ -74,15 +74,29 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute role="admin">
-                <Admin /> {/* Admin dashboard */}
+                <Admin />
               </ProtectedRoute>
             }
           />
+
+          {/* Catch-all for unmatched routes */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
 
       <Footer />
     </>
+  );
+}
+
+// Simple 404 page
+function NotFound() {
+  return (
+    <div style={{ textAlign: "center", padding: "50px" }}>
+      <h2>404 - Page Not Found</h2>
+      <p>The page you are looking for does not exist.</p>
+      <a href="/">Go back to Home</a>
+    </div>
   );
 }
 

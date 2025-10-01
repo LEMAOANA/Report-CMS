@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../services/api"; // make sure your API returns { token, user }
+import { login } from "../services/api"; // make sure API returns { token, user }
 import "./login.css";
 
 function Login() {
@@ -27,12 +27,23 @@ function Login() {
         localStorage.setItem("user", JSON.stringify(data.user));
 
         switch (data.user.role) {
-          case "student": navigate("/student"); break;
-          case "lecture": navigate("/lecturer"); break;
-          case "program_leader": navigate("/leader"); break;
-          case "principal_lecture": navigate("/principal"); break;
-          case "admin": navigate("/admin"); break;
-          default: navigate("/home");
+          case "student":
+            navigate("/student");
+            break;
+          case "lecturer":   // ✅ fixed
+            navigate("/lecturer");
+            break;
+          case "program_leader":
+            navigate("/leader");
+            break;
+          case "principal_lecturer": // ✅ fixed
+            navigate("/principal");
+            break;
+          case "admin":
+            navigate("/admin");
+            break;
+          default:
+            navigate("/home");
         }
       } else {
         setError("Login failed. Check your credentials.");

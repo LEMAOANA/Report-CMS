@@ -1,7 +1,8 @@
+// controllers/userController.js
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
-// Get all users
+// -------------------- Get all users --------------------
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({ attributes: { exclude: ["password"] } });
@@ -12,7 +13,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Get user by ID
+// -------------------- Get user by ID --------------------
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, { attributes: { exclude: ["password"] } });
@@ -24,17 +25,26 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Create user (with password confirmation)
+// -------------------- Create user --------------------
 export const createUser = async (req, res) => {
   try {
     const { username, email, password, passwordConfirm, role } = req.body;
 
-    if (!username || !email || !password || !passwordConfirm) {
+    if (!username || !email || !password || !passwordConfirm || !role) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     if (password !== passwordConfirm) {
       return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    // Prevent creating admin via signup
+    if (role === "admin") {
+      // Check if an admin already exists
+      const existingAdmin = await User.findOne({ where: { role: "admin" } });
+      if (existingAdmin) {
+        return res.status(403).json({ message: "Admin accounts are limited to (1)" });
+      }
     }
 
     const user = await User.create({ username, email, password, role });
@@ -48,7 +58,7 @@ export const createUser = async (req, res) => {
   }
 };
 
-// Update user
+// -------------------- Update user --------------------
 export const updateUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -56,15 +66,28 @@ export const updateUser = async (req, res) => {
 
     const { username, email, password, passwordConfirm, role } = req.body;
 
-    // If updating password, check confirmation
+    // Handle password updates
     if (password || passwordConfirm) {
       if (password !== passwordConfirm) {
         return res.status(400).json({ message: "Passwords do not match" });
       }
-      user.password = await bcrypt.hash(password, 12);
+      user.password = password; // model hook will hash it
     }
 
-    await user.update({ username, email, role });
+    if (username) user.username = username;
+    if (email) user.email = email;
+
+    if (role) {
+      if (role === "admin") {
+        const existingAdmin = await User.findOne({ where: { role: "admin" } });
+        if (existingAdmin && existingAdmin.id !== user.id) {
+          return res.status(403).json({ message: "Admin account already exists" });
+        }
+      }
+      user.role = role;
+    }
+
+    await user.save();
     const safeUser = user.toJSON();
     delete safeUser.password;
 
@@ -75,7 +98,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// Delete user
+// -------------------- Delete user --------------------
 export const deleteUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);

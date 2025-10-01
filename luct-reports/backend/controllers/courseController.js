@@ -1,29 +1,44 @@
+// controllers/courseController.js
 import Course from "../models/Course.js";
 import Faculty from "../models/Faculty.js";
 import User from "../models/User.js";
 
-// Create a new course
+// -------------------- Create Course --------------------
 export const createCourse = async (req, res) => {
   try {
-    const { name, code, description, facultyId, programLeaderId } = req.body;
+    const { name, code, description, facultyId, programLeaderId, principalLecturerId } = req.body;
 
-    // Check required fields
     if (!name || !code || !facultyId) {
       return res.status(400).json({ message: "Name, code, and facultyId are required" });
     }
 
-    // Ensure faculty exists
     const faculty = await Faculty.findByPk(facultyId);
     if (!faculty) return res.status(404).json({ message: "Faculty not found" });
 
-    // Optional: Check program leader exists
-    let programLeader = null;
+    // Validate roles
     if (programLeaderId) {
-      programLeader = await User.findByPk(programLeaderId);
-      if (!programLeader) return res.status(404).json({ message: "Program Leader not found" });
+      const leader = await User.findByPk(programLeaderId);
+      if (!leader || leader.role !== "program_leader") {
+        return res.status(404).json({ message: "Program Leader not found or invalid role" });
+      }
     }
 
-    const course = await Course.create({ name, code, description, facultyId, programLeaderId });
+    if (principalLecturerId) {
+      const principal = await User.findByPk(principalLecturerId);
+      if (!principal || principal.role !== "principal_lecturer") {
+        return res.status(404).json({ message: "Principal Lecturer not found or invalid role" });
+      }
+    }
+
+    const course = await Course.create({
+      name,
+      code,
+      description,
+      facultyId,
+      programLeaderId,
+      principalLecturerId,
+    });
+
     res.status(201).json({ status: "success", course });
   } catch (err) {
     console.error(err);
@@ -31,13 +46,14 @@ export const createCourse = async (req, res) => {
   }
 };
 
-// Get all courses
+// -------------------- Get All Courses --------------------
 export const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.findAll({
       include: [
         { model: Faculty, attributes: ["id", "name"] },
-        { model: User, as: "programLeader", attributes: ["id", "username", "email"] },
+        { model: User, as: "programLeader", attributes: ["id", "username", "email", "role"] },
+        { model: User, as: "principalLecturer", attributes: ["id", "username", "email", "role"] },
       ],
     });
     res.json({ status: "success", courses });
@@ -47,13 +63,14 @@ export const getAllCourses = async (req, res) => {
   }
 };
 
-// Get course by ID
+// -------------------- Get Course by ID --------------------
 export const getCourseById = async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id, {
       include: [
         { model: Faculty, attributes: ["id", "name"] },
-        { model: User, as: "programLeader", attributes: ["id", "username", "email"] },
+        { model: User, as: "programLeader", attributes: ["id", "username", "email", "role"] },
+        { model: User, as: "principalLecturer", attributes: ["id", "username", "email", "role"] },
       ],
     });
     if (!course) return res.status(404).json({ message: "Course not found" });
@@ -64,23 +81,33 @@ export const getCourseById = async (req, res) => {
   }
 };
 
-// Update course
+// -------------------- Update Course --------------------
 export const updateCourse = async (req, res) => {
   try {
+    const { name, code, description, facultyId, programLeaderId, principalLecturerId } = req.body;
     const course = await Course.findByPk(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    const { name, code, description, facultyId, programLeaderId } = req.body;
     if (facultyId) {
       const faculty = await Faculty.findByPk(facultyId);
       if (!faculty) return res.status(404).json({ message: "Faculty not found" });
     }
+
     if (programLeaderId) {
-      const programLeader = await User.findByPk(programLeaderId);
-      if (!programLeader) return res.status(404).json({ message: "Program Leader not found" });
+      const leader = await User.findByPk(programLeaderId);
+      if (!leader || leader.role !== "program_leader") {
+        return res.status(404).json({ message: "Program Leader not found or invalid role" });
+      }
     }
 
-    await course.update({ name, code, description, facultyId, programLeaderId });
+    if (principalLecturerId) {
+      const principal = await User.findByPk(principalLecturerId);
+      if (!principal || principal.role !== "principal_lecturer") {
+        return res.status(404).json({ message: "Principal Lecturer not found or invalid role" });
+      }
+    }
+
+    await course.update({ name, code, description, facultyId, programLeaderId, principalLecturerId });
     res.json({ status: "success", course });
   } catch (err) {
     console.error(err);
@@ -88,7 +115,7 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-// Delete course
+// -------------------- Delete Course --------------------
 export const deleteCourse = async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id);

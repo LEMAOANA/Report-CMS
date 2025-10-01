@@ -4,6 +4,7 @@ import './leader.css';
 const ProgramLeader = () => {
   // -------------------- Data States --------------------
   const [faculties, setFaculties] = useState([]);
+  const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [classes, setClasses] = useState([]);
 
@@ -15,7 +16,7 @@ const ProgramLeader = () => {
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showClassModal, setShowClassModal] = useState(false);
 
-  const [modalData, setModalData] = useState({}); // generic modal data
+  const [modalData, setModalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
 
   // -------------------- Fetch Functions --------------------
@@ -26,6 +27,16 @@ const ProgramLeader = () => {
       setFaculties(data.faculties || []);
     } catch (error) {
       console.error('Error fetching faculties:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/users');
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
   };
 
@@ -51,6 +62,7 @@ const ProgramLeader = () => {
 
   useEffect(() => {
     fetchFaculties();
+    fetchUsers();
     fetchCourses();
     fetchClasses();
   }, []);
@@ -80,8 +92,8 @@ const ProgramLeader = () => {
   };
 
   const saveCourse = async (id) => {
-    const { name, code, description, facultyId } = modalData;
-    if (!name || !code || !description || !facultyId) return alert('Fill in all fields');
+    const { name, code, description, facultyId, programLeaderId, principalLecturerId } = modalData;
+    if (!name || !code || !facultyId) return alert('Fill in required fields');
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
       ? `http://localhost:3000/api/courses/${id}`
@@ -91,7 +103,7 @@ const ProgramLeader = () => {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(modalData),
+        body: JSON.stringify({ name, code, description, facultyId, programLeaderId, principalLecturerId }),
       });
       const data = await res.json();
       if (data.status === 'success') {
@@ -104,10 +116,10 @@ const ProgramLeader = () => {
   };
 
   const saveClass = async (id) => {
-    const { name, year, semester, venue, scheduledTime, totalRegisteredStudents, courseId } =
-      modalData;
-    if (!name || !year || !semester || !venue || !scheduledTime || !totalRegisteredStudents || !courseId)
+    const { name, year, semester, venue, scheduledTime, courseId, lecturerId } = modalData;
+    if (!name || !year || !semester || !venue || !scheduledTime || !courseId || !lecturerId)
       return alert('Fill in all fields');
+
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
       ? `http://localhost:3000/api/classes/${id}`
@@ -146,6 +158,11 @@ const ProgramLeader = () => {
 
   // -------------------- Modal Handlers --------------------
   const openModal = (type, data = {}, editing = false) => {
+    if (type === 'class' && !editing) {
+      const studentCount = users.filter(u => u.role === 'student').length;
+      data.totalRegisteredStudents = studentCount;
+    }
+
     setModalData(data);
     setIsEditing(editing);
     if (type === 'faculty') setShowFacultyModal(true);
@@ -177,7 +194,7 @@ const ProgramLeader = () => {
               </tr>
             </thead>
             <tbody>
-              {faculties.map((f) => (
+              {faculties.map(f => (
                 <tr key={f.id}>
                   <td>{f.id}</td>
                   <td>{f.name}</td>
@@ -202,19 +219,23 @@ const ProgramLeader = () => {
                 <th>Code</th>
                 <th>Description</th>
                 <th>Faculty</th>
+                <th>Program Leader</th>
+                <th>Principal Lecturer</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {courses.map((c) => (
+              {courses.map(c => (
                 <tr key={c.id}>
                   <td>{c.id}</td>
                   <td>{c.name}</td>
                   <td>{c.code}</td>
                   <td>{c.description}</td>
                   <td>{c.Faculty?.name || 'N/A'}</td>
+                  <td>{c.programLeader?.username || 'N/A'}</td>
+                  <td>{c.principalLecturer?.username || 'N/A'}</td>
                   <td>{new Date(c.createdAt).toLocaleString()}</td>
                   <td>{new Date(c.updatedAt).toLocaleString()}</td>
                   <td>
@@ -239,13 +260,14 @@ const ProgramLeader = () => {
                 <th>Time</th>
                 <th>Total Students</th>
                 <th>Course</th>
+                <th>Lecturer</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {classes.map((cls) => (
+              {classes.map(cls => (
                 <tr key={cls.id}>
                   <td>{cls.id}</td>
                   <td>{cls.name}</td>
@@ -255,6 +277,7 @@ const ProgramLeader = () => {
                   <td>{cls.scheduledTime}</td>
                   <td>{cls.totalRegisteredStudents}</td>
                   <td>{cls.Course?.name || 'N/A'}</td>
+                  <td>{cls.lecturer?.username || 'N/A'}</td>
                   <td>{new Date(cls.createdAt).toLocaleString()}</td>
                   <td>{new Date(cls.updatedAt).toLocaleString()}</td>
                   <td>
@@ -273,7 +296,6 @@ const ProgramLeader = () => {
 
   return (
     <div className="pl-page">
-
       <div className="button-group">
         <button onClick={() => setView('faculties')}>View Faculties</button>
         <button onClick={() => setView('courses')}>View Courses</button>
@@ -294,7 +316,7 @@ const ProgramLeader = () => {
               type="text"
               placeholder="Faculty Name"
               value={modalData.name || ''}
-              onChange={(e) => setModalData({ ...modalData, name: e.target.value })}
+              onChange={e => setModalData({ ...modalData, name: e.target.value })}
             />
             <div className="modal-actions">
               <button onClick={() => saveFaculty(modalData.id)}>Save</button>
@@ -313,29 +335,45 @@ const ProgramLeader = () => {
               type="text"
               placeholder="Course Name"
               value={modalData.name || ''}
-              onChange={(e) => setModalData({ ...modalData, name: e.target.value })}
+              onChange={e => setModalData({ ...modalData, name: e.target.value })}
             />
             <input
               type="text"
               placeholder="Course Code"
               value={modalData.code || ''}
-              onChange={(e) => setModalData({ ...modalData, code: e.target.value })}
+              onChange={e => setModalData({ ...modalData, code: e.target.value })}
             />
             <input
               type="text"
               placeholder="Description"
               value={modalData.description || ''}
-              onChange={(e) => setModalData({ ...modalData, description: e.target.value })}
+              onChange={e => setModalData({ ...modalData, description: e.target.value })}
             />
             <select
               value={modalData.facultyId || ''}
-              onChange={(e) => setModalData({ ...modalData, facultyId: e.target.value })}
+              onChange={e => setModalData({ ...modalData, facultyId: e.target.value })}
             >
               <option value="">Select Faculty</option>
-              {faculties.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
+              {faculties.map(f => (
+                <option key={f.id} value={f.id}>{f.name}</option>
+              ))}
+            </select>
+            <select
+              value={modalData.programLeaderId || ''}
+              onChange={e => setModalData({ ...modalData, programLeaderId: e.target.value })}
+            >
+              <option value="">Select Program Leader</option>
+              {users.filter(u => u.role === 'program_leader').map(u => (
+                <option key={u.id} value={u.id}>{u.username}</option>
+              ))}
+            </select>
+            <select
+              value={modalData.principalLecturerId || ''}
+              onChange={e => setModalData({ ...modalData, principalLecturerId: e.target.value })}
+            >
+              <option value="">Select Principal Lecturer</option>
+              {users.filter(u => u.role === 'principal_lecturer').map(u => (
+                <option key={u.id} value={u.id}>{u.username}</option>
               ))}
             </select>
             <div className="modal-actions">
@@ -355,49 +393,56 @@ const ProgramLeader = () => {
               type="text"
               placeholder="Class Name"
               value={modalData.name || ''}
-              onChange={(e) => setModalData({ ...modalData, name: e.target.value })}
+              onChange={e => setModalData({ ...modalData, name: e.target.value })}
             />
             <input
               type="number"
               placeholder="Year"
               value={modalData.year || ''}
-              onChange={(e) => setModalData({ ...modalData, year: e.target.value })}
+              onChange={e => setModalData({ ...modalData, year: e.target.value })}
             />
-            <input
-              type="number"
-              placeholder="Semester"
+            <select
               value={modalData.semester || ''}
-              onChange={(e) => setModalData({ ...modalData, semester: e.target.value })}
-            />
+              onChange={e => setModalData({ ...modalData, semester: e.target.value })}
+            >
+              <option value="">Select Semester</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
             <input
               type="text"
               placeholder="Venue"
               value={modalData.venue || ''}
-              onChange={(e) => setModalData({ ...modalData, venue: e.target.value })}
+              onChange={e => setModalData({ ...modalData, venue: e.target.value })}
             />
             <input
-              type="time"
-              placeholder="Scheduled Time"
+              type="text"
+              placeholder="Scheduled Time (e.g., 08:00 - 10:00)"
               value={modalData.scheduledTime || ''}
-              onChange={(e) => setModalData({ ...modalData, scheduledTime: e.target.value })}
+              onChange={e => setModalData({ ...modalData, scheduledTime: e.target.value })}
             />
             <input
               type="number"
               placeholder="Total Students"
-              value={modalData.totalRegisteredStudents || ''}
-              onChange={(e) =>
-                setModalData({ ...modalData, totalRegisteredStudents: e.target.value })
-              }
+              value={modalData.totalRegisteredStudents || 0}
+              readOnly
             />
             <select
               value={modalData.courseId || ''}
-              onChange={(e) => setModalData({ ...modalData, courseId: e.target.value })}
+              onChange={e => setModalData({ ...modalData, courseId: e.target.value })}
             >
               <option value="">Select Course</option>
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
+              {courses.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <select
+              value={modalData.lecturerId || ''}
+              onChange={e => setModalData({ ...modalData, lecturerId: e.target.value })}
+            >
+              <option value="">Select Lecturer</option>
+              {users.filter(u => u.role === 'lecturer').map(u => (
+                <option key={u.id} value={u.id}>{u.username}</option>
               ))}
             </select>
             <div className="modal-actions">

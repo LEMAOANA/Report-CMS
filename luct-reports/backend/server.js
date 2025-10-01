@@ -39,7 +39,7 @@ app.use("/api/faculties", facultyRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/classes", classRoutes); 
 app.use("/api/reports", reportRoutes);
-app.use("/api/reportFeedback", reportFeedbackRoutes);
+app.use("/api/reportFeedbacks", reportFeedbackRoutes);
 
 
 // Test Sequelize connection and sync models

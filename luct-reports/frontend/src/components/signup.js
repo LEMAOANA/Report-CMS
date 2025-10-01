@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { signup } from "../services/api";
 import "./signup.css";
@@ -12,6 +12,13 @@ function Signup() {
     role: "student",
   });
 
+  const [roles, setRoles] = useState([
+    "student",
+    "lecturer",
+    "program_leader",
+    "principal_lecturer"
+  ]); // Admin removed
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
@@ -19,6 +26,22 @@ function Signup() {
   const navigate = useNavigate();
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Optional: Check if admin exists on load (so you could later show admin-only role)
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/users");
+        const data = await res.json();
+        if (data.users.some(u => u.role === "admin")) {
+          console.log("Admin exists, signup will not allow admin role");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    checkAdmin();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +53,8 @@ function Signup() {
 
   const checkPasswordStrength = (password) => {
     if (password.length < 6) setPasswordStrength("Weak");
-    else if (/[A-Z]/.test(password) && /\d/.test(password) && /[@$!%*?&]/.test(password)) setPasswordStrength("Strong");
+    else if (/[A-Z]/.test(password) && /\d/.test(password) && /[@$!%*?&]/.test(password))
+      setPasswordStrength("Strong");
     else setPasswordStrength("Medium");
   };
 
@@ -57,18 +81,26 @@ function Signup() {
       setLoading(true);
       const data = await signup(formData);
 
-      if (data.token) {
+      if (data.token && data.user) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Redirect by role
         switch (data.user.role) {
-          case "student": navigate("/student"); break;
-          case "lecture": navigate("/lecturer"); break;
-          case "program_leader": navigate("/leader"); break;
-          case "principal_lecture": navigate("/principal"); break;
-          case "admin": navigate("/admin"); break;
-          default: navigate("/home");
+          case "student":
+            navigate("/student");
+            break;
+          case "lecturer":
+            navigate("/lecturer");
+            break;
+          case "program_leader":
+            navigate("/leader");
+            break;
+          case "principal_lecturer":
+            navigate("/principal");
+            break;
+          default:
+            navigate("/home");
         }
       } else {
         setError("Signup failed. Please try again.");
@@ -131,12 +163,17 @@ function Signup() {
             required
           />
 
-          <select name="role" value={formData.role} onChange={handleChange} required>
-            <option value="student">Student</option>
-            <option value="lecture">Lecturer</option>
-            <option value="program_leader">Program Leader</option>
-            <option value="principal_lecture">Principal</option>
-            <option value="admin">Admin</option>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            required
+          >
+            {roles.map(role => (
+              <option key={role} value={role}>
+                {role.replace('_', ' ').toUpperCase()}
+              </option>
+            ))}
           </select>
 
           <button type="submit" disabled={loading || !emailValid}>

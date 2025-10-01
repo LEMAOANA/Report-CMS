@@ -13,7 +13,25 @@ export const createFeedback = async (req, res) => {
       return res.status(400).json({ message: "Rating and userId are required" });
     }
 
-    const feedback = await ReportFeedback.create({ reportId, rating, comment, userId });
+    // ✅ Check if report exists
+    const report = await Report.findByPk(reportId);
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    // ✅ Check if user exists
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const feedback = await ReportFeedback.create({
+      reportId,
+      rating,
+      comment,
+      userId,
+    });
+
     res.status(201).json({ status: "success", feedback });
   } catch (err) {
     console.error(err);
@@ -27,8 +45,8 @@ export const getAllFeedbacks = async (req, res) => {
     const feedbacks = await ReportFeedback.findAll({
       include: [
         { model: User, attributes: ["id", "username", "role"] },
-        { model: Report }
-      ]
+        { model: Report },
+      ],
     });
     res.json({ status: "success", feedbacks });
   } catch (err) {
@@ -43,10 +61,11 @@ export const getFeedbackById = async (req, res) => {
     const feedback = await ReportFeedback.findByPk(req.params.id, {
       include: [
         { model: User, attributes: ["id", "username", "role"] },
-        { model: Report }
-      ]
+        { model: Report },
+      ],
     });
-    if (!feedback) return res.status(404).json({ message: "Feedback not found" });
+    if (!feedback)
+      return res.status(404).json({ message: "Feedback not found" });
     res.json({ status: "success", feedback });
   } catch (err) {
     console.error(err);
@@ -60,7 +79,7 @@ export const getFeedbacksByReport = async (req, res) => {
     const { reportId } = req.params;
     const feedbacks = await ReportFeedback.findAll({
       where: { reportId },
-      include: [{ model: User, attributes: ["id", "username", "role"] }]
+      include: [{ model: User, attributes: ["id", "username", "role"] }],
     });
     res.json({ status: "success", feedbacks });
   } catch (err) {
@@ -73,7 +92,8 @@ export const getFeedbacksByReport = async (req, res) => {
 export const updateFeedback = async (req, res) => {
   try {
     const feedback = await ReportFeedback.findByPk(req.params.id);
-    if (!feedback) return res.status(404).json({ message: "Feedback not found" });
+    if (!feedback)
+      return res.status(404).json({ message: "Feedback not found" });
 
     const { rating, comment } = req.body;
     await feedback.update({ rating, comment });
@@ -89,7 +109,8 @@ export const updateFeedback = async (req, res) => {
 export const deleteFeedback = async (req, res) => {
   try {
     const feedback = await ReportFeedback.findByPk(req.params.id);
-    if (!feedback) return res.status(404).json({ message: "Feedback not found" });
+    if (!feedback)
+      return res.status(404).json({ message: "Feedback not found" });
 
     await feedback.destroy();
     res.json({ status: "success", message: "Feedback deleted successfully" });
