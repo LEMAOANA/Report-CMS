@@ -1,16 +1,18 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { isAuthValid } from "../utils/auth";
 
 function ProtectedRoute({ children, role }) {
-  const token = localStorage.getItem("token");
   const userRole = localStorage.getItem("role");
 
-  if (!token) {
+  // Check if user is logged in and session is still active
+  if (!isAuthValid()) {
     return <Navigate to="/login" />;
   }
 
+  // Check if user's role matches the required role
   if (role && userRole !== role) {
-    return <Navigate to="/login" />; // or a "Not authorized" page
+    return <Navigate to="/login" />; // or redirect to "Not authorized" page
   }
 
   return children;

@@ -7,28 +7,31 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Get user info from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
+    localStorage.clear();
     navigate("/login");
   };
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
 
+  // List of all dashboards + home
   const dashboardLinks = [
-    { role: "student", path: "/student", label: "Student Dashboard" },
-    { role: "lecture", path: "/lecturer", label: "Lecturer Dashboard" },
-    { role: "principal_lecture", path: "/principal", label: "Principal Dashboard" },
-    { role: "program_leader", path: "/leader", label: "Leader Dashboard" },
-    { role: "admin", path: "/admin", label: "Admin Dashboard" },
+    { role: "all", path: "/", label: "Home" }, // always visible
+    { role: "student", path: "/student", label: "Student" },
+    { role: "lecturer", path: "/lecturer", label: "Lecturer" },
+    { role: "principal_lecturer", path: "/principal", label: "Principal Lecturer" },
+    { role: "program_leader", path: "/leader", label: "Program Leader" },
+    { role: "admin", path: "/admin", label: "Admin" },
   ];
 
-  const availableLinks = dashboardLinks.filter(link => link.role === user?.role);
+  // Filter links: admin only sees admin, everyone sees others + home
+  const availableLinks = dashboardLinks.filter(link => {
+    if (link.role === "admin") return user?.role === "admin";
+    return true; // home and other dashboards are always visible
+  });
 
   return (
     <nav className="navbar-modern">
@@ -37,22 +40,15 @@ function Navbar() {
       </div>
 
       <div className={`navbar-center ${menuOpen ? "open" : ""}`}>
-        {user
-          ? availableLinks.map(link => (
-              <button
-                key={link.path}
-                className="nav-link"
-                onClick={() => navigate(link.path)}
-              >
-                {link.label}
-              </button>
-            ))
-          : (
-            <>
-              <button className="nav-link" onClick={() => navigate("/login")}>Login</button>
-            </>
-          )
-        }
+        {availableLinks.map(link => (
+          <button
+            key={link.path}
+            className="nav-link"
+            onClick={() => navigate(link.path)}
+          >
+            {link.label}
+          </button>
+        ))}
       </div>
 
       {user && (

@@ -3,34 +3,34 @@
   align-items: center;
   justify-content: space-between;
   background-color: rgb(86, 137, 214);
-  padding: 10px 20px;
+  padding: 12px 24px;
   color: #e2e8f0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: sticky;
   top: 0;
   z-index: 1000;
   border-bottom: 2px solid #2d3748;
-
-  /* Rounded edges */
   border-radius: 12px;
-
-  /* Make it slightly smaller so curves are visible */
   width: 95%;
-  margin: 10px auto; /* centers the navbar */
+  margin: 10px auto;
+  font-weight: 500; /* Slightly bolder for navbar text */
+  letter-spacing: 0.5px; /* Improves readability */
 }
 
 /* Logo */
 .navbar-left .logo {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: white;
+  font-size: 2rem; /* Slightly bigger logo */
+  font-weight: 800;
+  color: #ffffff;
   cursor: pointer;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 /* Center navigation links */
 .navbar-center {
   display: flex;
-  gap: 15px;
+  gap: 18px;
 }
 
 .navbar-center.open {
@@ -41,19 +41,22 @@
   top: 60px;
   left: 0;
   width: 100%;
-  padding: 10px 0;
-  border-radius: 0 0 12px 12px; /* Rounded dropdown */
+  padding: 12px 0;
+  border-radius: 0 0 12px 12px;
 }
 
+/* Links */
 .nav-link {
   background: none;
   border: none;
-  color: #e2e8f0;
-  font-size: 1rem;
+  color: #f0f4f8;
+  font-size: 1.05rem;
+  font-weight: 600;
   cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   transition: all 0.2s;
+  letter-spacing: 0.5px;
 }
 
 .nav-link:hover {
@@ -61,75 +64,72 @@
   color: #1a202c;
 }
 
-/* Signup Button */
-.signup-btn {
-  background-color: #63b3ed;
-  color: #1a202c;
-}
-
-.signup-btn:hover {
-  background-color: #4299e1;
-}
-
 /* Right section */
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 18px;
   position: relative;
 }
 
+/* Profile */
 .profile-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
 }
 
 .avatar {
   background-color: #63b3ed;
   color: #1a202c;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #e2e8f0;
+  line-height: 1.2;
 }
 
 .user-role {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #a0aec0;
+  letter-spacing: 0.5px;
 }
 
+/* Profile dropdown */
 .profile-dropdown {
   position: absolute;
-  top: 50px;
+  top: 52px;
   right: 0;
   background-color: #2d3748;
   border: 1px solid #4a5568;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-width: 140px;
+  min-width: 150px;
 }
 
 .profile-dropdown button {
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: none;
   border: none;
   color: #e2e8f0;
   cursor: pointer;
   text-align: left;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 .profile-dropdown button:hover {
@@ -142,7 +142,7 @@
   display: none;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   color: #e2e8f0;
   cursor: pointer;
 }
