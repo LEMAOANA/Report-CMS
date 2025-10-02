@@ -11,7 +11,7 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
   };
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -36,7 +36,7 @@ function Navbar() {
   return (
     <nav className="navbar-modern">
       <div className="navbar-left" onClick={() => navigate("/")}>
-        <span className="logo">LUCT Reports</span>
+        <span className="logo">LUCT REPORTS</span>
       </div>
 
       <div className={`navbar-center ${menuOpen ? "open" : ""}`}>

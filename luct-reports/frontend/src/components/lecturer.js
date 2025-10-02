@@ -4,40 +4,35 @@ import "./lecturer.css";
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 function LecturerPage() {
-  // -------------------- State --------------------
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
   const [reports, setReports] = useState([]);
-  const [ratings, setRatings] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [classes, setClasses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const [showAddReportModal, setShowAddReportModal] = useState(false);
-  const [showAddRatingModal, setShowAddRatingModal] = useState(false);
   const [showClasses, setShowClasses] = useState(false);
   const [showReports, setShowReports] = useState(false);
-  const [showRatings, setShowRatings] = useState(false);
+  const [showFeedbacks, setShowFeedbacks] = useState(false);
 
   const [newReport, setNewReport] = useState({
     facultyId: "",
     classId: "",
     courseId: "",
-    lecturerId: "",
+    lecturerId: currentUser?.id || "",
     weekOfReporting: "",
     dateOfLecture: "",
     actualStudentsPresent: "",
-    totalRegisteredStudents: "",
+    totalRegisteredStudents: 0,
     venue: "",
     scheduledTime: "",
     topicTaught: "",
     learningOutcomes: "",
     lecturerRecommendations: "",
-  });
-
-  const [newRating, setNewRating] = useState({
-    reportId: "",
-    score: "",
-    feedback: "",
   });
 
   // -------------------- Fetch Data --------------------
@@ -51,13 +46,13 @@ function LecturerPage() {
     }
   };
 
-  const fetchRatings = async () => {
+  const fetchFeedbacks = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/ratings`);
+      const res = await fetch(`${BASE_URL}/reportFeedbacks`);
       const data = await res.json();
-      setRatings(data.ratings || []);
+      setFeedbacks(data.feedbacks || []);
     } catch (err) {
-      console.error("Error fetching ratings:", err);
+      console.error("Error fetching feedbacks:", err);
     }
   };
 
@@ -95,24 +90,37 @@ function LecturerPage() {
     try {
       const res = await fetch(`${BASE_URL}/users`);
       const data = await res.json();
-      setLecturers(data.users.filter((u) => u.role === "lecture"));
+      setLecturers(data.users.filter((u) => u.role === "lecturer"));
     } catch (err) {
       console.error("Error fetching lecturers:", err);
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/users`);
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
+  };
+
   useEffect(() => {
     fetchReports();
-    fetchRatings();
+    fetchFeedbacks();
     fetchFaculties();
     fetchCourses();
     fetchClasses();
     fetchLecturers();
+    fetchUsers();
   }, []);
 
   // -------------------- CRUD --------------------
   const addReport = async () => {
-    if (Object.values(newReport).some((v) => v === "")) return alert("Please fill all fields");
+    if (Object.values(newReport).some((v) => v === "")) {
+      return alert("Please fill all fields");
+    }
     try {
       const res = await fetch(`${BASE_URL}/reports`, {
         method: "POST",
@@ -122,32 +130,22 @@ function LecturerPage() {
       const data = await res.json();
       if (data.status === "success") {
         setNewReport({
-          facultyId: "", classId: "", courseId: "", lecturerId: "",
-          weekOfReporting: "", dateOfLecture: "", actualStudentsPresent: "",
-          totalRegisteredStudents: "", venue: "", scheduledTime: "",
-          topicTaught: "", learningOutcomes: "", lecturerRecommendations: "",
+          facultyId: "",
+          classId: "",
+          courseId: "",
+          lecturerId: currentUser?.id || "",
+          weekOfReporting: "",
+          dateOfLecture: "",
+          actualStudentsPresent: "",
+          totalRegisteredStudents: 0,
+          venue: "",
+          scheduledTime: "",
+          topicTaught: "",
+          learningOutcomes: "",
+          lecturerRecommendations: "",
         });
         setShowAddReportModal(false);
         fetchReports();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const addRating = async () => {
-    if (!newRating.reportId || !newRating.score) return alert("Please select report and score");
-    try {
-      const res = await fetch(`${BASE_URL}/ratings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newRating),
-      });
-      const data = await res.json();
-      if (data.status === "success") {
-        setNewRating({ reportId: "", score: "", feedback: "" });
-        setShowAddRatingModal(false);
-        fetchRatings();
       }
     } catch (err) {
       console.error(err);
@@ -184,11 +182,27 @@ function LecturerPage() {
     <div className="lecturer-container">
       {/* Action Cards */}
       <div className="lecturer-cards">
-        <div className={`card-tab ${showClasses ? "active" : ""}`} onClick={() => setShowClasses(!showClasses)}>View Classes</div>
-        <div className={`card-tab ${showReports ? "active" : ""}`} onClick={() => setShowReports(!showReports)}>View Reports</div>
-        <div className={`card-tab ${showRatings ? "active" : ""}`} onClick={() => setShowRatings(!showRatings)}>View Ratings</div>
-        <div className="card-tab" onClick={() => setShowAddReportModal(true)}>Add Report</div>
-        <div className="card-tab" onClick={() => setShowAddRatingModal(true)}>Add Rating</div>
+        <div
+          className={`card-tab ${showClasses ? "active" : ""}`}
+          onClick={() => setShowClasses(!showClasses)}
+        >
+          Classes
+        </div>
+        <div
+          className={`card-tab ${showReports ? "active" : ""}`}
+          onClick={() => setShowReports(!showReports)}
+        >
+          Reports
+        </div>
+        <div
+          className={`card-tab ${showFeedbacks ? "active" : ""}`}
+          onClick={() => setShowFeedbacks(!showFeedbacks)}
+        >
+          Ratings
+        </div>
+        <div className="card-tab" onClick={() => setShowAddReportModal(true)}>
+          Add Report
+        </div>
       </div>
 
       {/* Classes Table */}
@@ -196,24 +210,34 @@ function LecturerPage() {
         <table className="report-table">
           <thead>
             <tr>
-              <th>ID</th><th>Name</th><th>Year</th><th>Semester</th><th>Course</th><th>Venue</th><th>Time</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Year</th>
+              <th>Semester</th>
+              <th>Venue</th>
+              <th>Time</th>
+              <th>Total Students</th>
+              <th>Course</th>
             </tr>
           </thead>
           <tbody>
-            {classes.map((cl) => {
-              const course = courses.find((c) => c.id === cl.courseId);
-              return (
-                <tr key={cl.id}>
-                  <td>{cl.id}</td>
-                  <td>{cl.name}</td>
-                  <td>{cl.year}</td>
-                  <td>{cl.semester}</td>
-                  <td>{course?.name || "N/A"}</td>
-                  <td>{cl.venue}</td>
-                  <td>{cl.scheduledTime}</td>
-                </tr>
-              );
-            })}
+            {classes
+              .filter((cl) => cl.lecturerId === currentUser?.id)
+              .map((cl) => {
+                const course = courses.find((c) => c.id === cl.courseId);
+                return (
+                  <tr key={cl.id}>
+                    <td>{cl.id}</td>
+                    <td>{cl.name}</td>
+                    <td>{cl.year}</td>
+                    <td>{cl.semester}</td>
+                    <td>{cl.venue}</td>
+                    <td>{cl.scheduledTime}</td>
+                    <td>{cl.totalStudents}</td>
+                    <td>{course?.name || "N/A"}</td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       )}
@@ -223,58 +247,116 @@ function LecturerPage() {
         <table className="report-table">
           <thead>
             <tr>
-              <th>ID</th><th>Faculty</th><th>Class</th><th>Course</th><th>Week</th><th>Date</th>
-              <th>Present</th><th>Total Students</th><th>Venue</th><th>Time</th>
-              <th>Topic</th><th>Outcomes</th><th>Recommendations</th><th>Actions</th>
+              <th>ID</th>
+              <th>Faculty</th>
+              <th>Class</th>
+              <th>Course</th>
+              <th>Lecturer</th>
+              <th>Week</th>
+              <th>Date</th>
+              <th>Present</th>
+              <th>Total Students</th>
+              <th>Venue</th>
+              <th>Time</th>
+              <th>Topic</th>
+              <th>Outcomes</th>
+              <th>Recommendations</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {reports.map((r) => (
-              <tr key={r.id}>
-                <td>{r.id}</td>
-                <td>{r.Faculty?.name || "N/A"}</td>
-                <td>{r.Class?.name || "N/A"}</td>
-                <td>{r.Course?.name || "N/A"}</td>
-                <td>{r.weekOfReporting}</td>
-                <td>{r.dateOfLecture}</td>
-                <td>{r.actualStudentsPresent}</td>
-                <td>{r.totalRegisteredStudents}</td>
-                <td>{r.venue}</td>
-                <td>{r.scheduledTime}</td>
-                <td>{r.topicTaught}</td>
-                <td>{r.learningOutcomes}</td>
-                <td>{r.lecturerRecommendations}</td>
-                <td>
-                  <button onClick={() => {
-                    const updatedVenue = prompt("Venue:", r.venue) || r.venue;
-                    const updatedPresent = prompt("Actual Students Present:", r.actualStudentsPresent) || r.actualStudentsPresent;
-                    updateReport(r.id, { venue: updatedVenue, actualStudentsPresent: updatedPresent });
-                  }}>Edit</button>
-                  <button onClick={() => deleteReport(r.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
+            {reports
+              .filter((r) => r.lecturerId === currentUser?.id)
+              .map((r) => {
+                const lecturerName =
+                  lecturers.find((l) => l.id === r.lecturerId)?.username ||
+                  currentUser?.username ||
+                  "N/A";
+                return (
+                  <tr key={r.id}>
+                    <td>{r.id}</td>
+                    <td>{r.Faculty?.name || "N/A"}</td>
+                    <td>{r.Class?.name || "N/A"}</td>
+                    <td>{r.Course?.name || "N/A"}</td>
+                    <td>{lecturerName}</td>
+                    <td>{r.weekOfReporting}</td>
+                    <td>{r.dateOfLecture}</td>
+                    <td>{r.actualStudentsPresent}</td>
+                    <td>{r.totalRegisteredStudents}</td>
+                    <td>{r.venue}</td>
+                    <td>{r.scheduledTime}</td>
+                    <td>{r.topicTaught}</td>
+                    <td>{r.learningOutcomes}</td>
+                    <td>{r.lecturerRecommendations}</td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          const updatedVenue =
+                            prompt("Venue:", r.venue) || r.venue;
+                          const updatedPresent =
+                            prompt(
+                              "Actual Students Present:",
+                              r.actualStudentsPresent
+                            ) || r.actualStudentsPresent;
+                          updateReport(r.id, {
+                            venue: updatedVenue,
+                            actualStudentsPresent: updatedPresent,
+                          });
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button onClick={() => deleteReport(r.id)}>Delete</button>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       )}
 
-      {/* Ratings Table */}
-      {showRatings && (
+      {/* Feedbacks Table */}
+      {showFeedbacks && (
         <table className="report-table">
           <thead>
             <tr>
-              <th>ID</th><th>Report ID</th><th>Score</th><th>Feedback</th>
+              <th>ID</th>
+              <th>Report ID</th>
+              <th>Report Topic</th>
+              <th>Week</th>
+              <th>Date of Lecture</th>
+              <th>Score</th>
+              <th>Feedback</th>
+              <th>Rated By</th>
+              <th>Created At</th>
+              <th>Updated At</th>
             </tr>
           </thead>
           <tbody>
-            {ratings.map((r) => (
-              <tr key={r.id}>
-                <td>{r.id}</td>
-                <td>{r.reportId}</td>
-                <td>{r.score}</td>
-                <td>{r.feedback}</td>
-              </tr>
-            ))}
+            {feedbacks
+              .filter((f) =>
+                reports.some(
+                  (r) => r.id === f.reportId && r.lecturerId === currentUser?.id
+                )
+              )
+              .map((f) => {
+                const report = reports.find((r) => r.id === f.reportId);
+                const rater = users.find((u) => u.id === f.userId);
+                return (
+                  <tr key={f.id}>
+                    <td>{f.id}</td>
+                    <td>{f.reportId}</td>
+                    <td>{report?.topicTaught || "N/A"}</td>
+                    <td>{report?.weekOfReporting || "N/A"}</td>
+                    <td>{report?.dateOfLecture || "N/A"}</td>
+                    <td>{f.rating || "N/A"}</td>
+                    <td>{f.comment || "N/A"}</td>
+                    <td>{rater?.username || "N/A"}</td>
+                    <td>{new Date(f.createdAt).toLocaleString() || "N/A"}</td>
+                    <td>{new Date(f.updatedAt).toLocaleString() || "N/A"}</td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       )}
@@ -285,66 +367,151 @@ function LecturerPage() {
           <div className="modal-content">
             <h3>Submit New Report</h3>
             <div className="report-form">
-              <select value={newReport.facultyId} onChange={(e) => setNewReport({ ...newReport, facultyId: e.target.value })}>
-                <option value="">Select Faculty</option>
-                {faculties.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+              <select
+                value={newReport.classId}
+                onChange={(e) => {
+                  const selectedClassId = parseInt(e.target.value);
+                  const selectedClass = classes.find(
+                    (cl) => cl.id === selectedClassId
+                  );
+                  const selectedCourse = courses.find(
+                    (c) => c.id === selectedClass?.courseId
+                  );
+
+                  const studentCount = users.filter((u) => u.role === "student")
+                    .length;
+
+                  setNewReport({
+                    ...newReport,
+                    classId: selectedClassId,
+                    courseId: selectedCourse?.id || "",
+                    facultyId: selectedCourse?.facultyId || "",
+                    venue: selectedClass?.venue || "",
+                    scheduledTime: selectedClass?.scheduledTime || "",
+                    totalRegisteredStudents: studentCount || 0,
+                  });
+                }}
+              >
+                <option value="">Select Your Class</option>
+                {classes
+                  .filter((cl) => cl.lecturerId === currentUser?.id)
+                  .map((cl) => (
+                    <option key={cl.id} value={cl.id}>
+                      {cl.name}
+                    </option>
+                  ))}
               </select>
-              <select value={newReport.classId} onChange={(e) => setNewReport({ ...newReport, classId: e.target.value })}>
-                <option value="">Select Class</option>
-                {classes.map((cl) => <option key={cl.id} value={cl.id}>{cl.name}</option>)}
-              </select>
-              <select value={newReport.courseId} onChange={(e) => setNewReport({ ...newReport, courseId: e.target.value })}>
-                <option value="">Select Course</option>
-                {courses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-              <select value={newReport.lecturerId} onChange={(e) => setNewReport({ ...newReport, lecturerId: e.target.value })}>
-                <option value="">Select Lecturer</option>
-                {lecturers.map((l) => <option key={l.id} value={l.id}>{l.username}</option>)}
-              </select>
-              <input type="number" placeholder="Week of Reporting" value={newReport.weekOfReporting} onChange={(e) => setNewReport({ ...newReport, weekOfReporting: e.target.value })}/>
-              <input type="date" placeholder="Date of Lecture" value={newReport.dateOfLecture} onChange={(e) => setNewReport({ ...newReport, dateOfLecture: e.target.value })}/>
-              <input type="number" placeholder="Actual Students Present" value={newReport.actualStudentsPresent} onChange={(e) => setNewReport({ ...newReport, actualStudentsPresent: e.target.value })}/>
-              <input type="number" placeholder="Total Registered Students" value={newReport.totalRegisteredStudents} onChange={(e) => setNewReport({ ...newReport, totalRegisteredStudents: e.target.value })}/>
-              <input type="text" placeholder="Venue" value={newReport.venue} onChange={(e) => setNewReport({ ...newReport, venue: e.target.value })}/>
-              <input type="time" placeholder="Scheduled Time" value={newReport.scheduledTime} onChange={(e) => setNewReport({ ...newReport, scheduledTime: e.target.value })}/>
-              <input type="text" placeholder="Topic Taught" value={newReport.topicTaught} onChange={(e) => setNewReport({ ...newReport, topicTaught: e.target.value })}/>
-              <input type="text" placeholder="Learning Outcomes" value={newReport.learningOutcomes} onChange={(e) => setNewReport({ ...newReport, learningOutcomes: e.target.value })}/>
-              <input type="text" placeholder="Lecturer Recommendations" value={newReport.lecturerRecommendations} onChange={(e) => setNewReport({ ...newReport, lecturerRecommendations: e.target.value })}/>
+
+              <input
+                type="text"
+                value={
+                  faculties.find((f) => f.id === newReport.facultyId)?.name || ""
+                }
+                disabled
+                placeholder="Faculty"
+              />
+              <input
+                type="text"
+                value={
+                  courses.find((c) => c.id === newReport.courseId)?.name || ""
+                }
+                disabled
+                placeholder="Course"
+              />
+              <input
+                type="text"
+                value={currentUser?.username || ""}
+                disabled
+                placeholder="Lecturer"
+              />
+              <input
+                type="number"
+                placeholder="Week of Reporting"
+                value={newReport.weekOfReporting}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, weekOfReporting: e.target.value })
+                }
+              />
+              <input
+                type="date"
+                placeholder="Date of Lecture"
+                value={newReport.dateOfLecture}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, dateOfLecture: e.target.value })
+                }
+              />
+              <input
+                type="number"
+                placeholder="Actual Students Present"
+                value={newReport.actualStudentsPresent}
+                onChange={(e) =>
+                  setNewReport({
+                    ...newReport,
+                    actualStudentsPresent: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                type="number"
+                placeholder="Total Students"
+                value={newReport.totalRegisteredStudents || 0}
+                readOnly
+              />
+
+              <input
+                type="text"
+                placeholder="Venue"
+                value={newReport.venue}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, venue: e.target.value })
+                }
+              />
+              <input
+                type="time"
+                placeholder="Scheduled Time"
+                value={newReport.scheduledTime}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, scheduledTime: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Topic Taught"
+                value={newReport.topicTaught}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, topicTaught: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Learning Outcomes"
+                value={newReport.learningOutcomes}
+                onChange={(e) =>
+                  setNewReport({
+                    ...newReport,
+                    learningOutcomes: e.target.value,
+                  })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Lecturer Recommendations"
+                value={newReport.lecturerRecommendations}
+                onChange={(e) =>
+                  setNewReport({
+                    ...newReport,
+                    lecturerRecommendations: e.target.value,
+                  })
+                }
+              />
+
               <div className="modal-buttons">
                 <button onClick={addReport}>Submit</button>
-                <button onClick={() => setShowAddReportModal(false)}>Cancel</button>
+                <button onClick={() => setShowAddReportModal(false)}>
+                  Cancel
+                </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Rating Modal */}
-      {showAddRatingModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Submit New Rating</h3>
-            <select value={newRating.reportId} onChange={(e) => setNewRating({ ...newRating, reportId: e.target.value })}>
-              <option value="">Select Report</option>
-              {reports.map(r => <option key={r.id} value={r.id}>{`Report ${r.id} - ${r.topicTaught}`}</option>)}
-            </select>
-            <input
-              type="number"
-              placeholder="Score (1-5)"
-              min="1"
-              max="5"
-              value={newRating.score}
-              onChange={(e) => setNewRating({ ...newRating, score: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Feedback"
-              value={newRating.feedback}
-              onChange={(e) => setNewRating({ ...newRating, feedback: e.target.value })}
-            />
-            <div className="modal-buttons">
-              <button onClick={addRating}>Submit</button>
-              <button onClick={() => setShowAddRatingModal(false)}>Cancel</button>
             </div>
           </div>
         </div>

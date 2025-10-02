@@ -33,7 +33,7 @@ function HomePage() {
   return (
     <div className="homepage">
       <section className="hero">
-        <h1>LUCT Reporting Dashboard</h1>
+        <h1>LUCT Reporting System</h1>
         <p>Manage students, lecturers, principals, and program leaders efficiently</p>
         <a href="/login" className="btn">Get Started</a>
       </section>
@@ -53,7 +53,7 @@ function HomePage() {
 
         <div className="card">
           <FaUniversity className="icon" />
-          <h2>Principal</h2>
+          <h2>Principal Lecturer</h2>
           <p>{counts.principal_lecturer} principals registered</p>
         </div>
 

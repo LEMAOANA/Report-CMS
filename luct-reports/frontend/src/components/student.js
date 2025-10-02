@@ -53,7 +53,9 @@ function Student() {
 
   const updateLocalFeedback = (reportId, updated) => {
     setFeedbacks((prev) => {
-      const idx = prev.findIndex((f) => f.reportId === reportId && f.userId === userId);
+      const idx = prev.findIndex(
+        (f) => f.reportId === reportId && f.userId === userId
+      );
       if (idx > -1) {
         const newArr = [...prev];
         newArr[idx] = { ...newArr[idx], ...updated };
@@ -67,7 +69,6 @@ function Student() {
   // -------------------- Actions --------------------
   const sendRating = async (reportId, rating) => {
     const existingFeedback = getFeedbackForReport(reportId);
-
     updateLocalFeedback(reportId, { rating, comment: existingFeedback?.comment || "" });
 
     try {
@@ -97,7 +98,6 @@ function Student() {
   const updateComment = async (reportId, comment) => {
     const existingFeedback = getFeedbackForReport(reportId);
     if (!existingFeedback) return;
-
     updateLocalFeedback(reportId, { comment });
 
     try {
@@ -111,37 +111,21 @@ function Student() {
     }
   };
 
-  const deleteFeedback = async (reportId) => {
-    const existingFeedback = getFeedbackForReport(reportId);
-    if (!existingFeedback) return;
-    if (!window.confirm("Are you sure you want to delete your feedback?")) return;
-
-    setFeedbacks((prev) => prev.filter((f) => f.reportId !== reportId || f.userId !== userId));
-
-    try {
-      await fetch(`${BASE_URL}/reportFeedbacks/${existingFeedback.id}`, {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.error("Error deleting feedback:", err);
-    }
-  };
-
   return (
     <div className="student-container">
       {/* Tabs */}
       <div className="student-cards">
         <div
-          className={`card-tab ${viewTab === "reports" ? "active" : ""}`}
-          onClick={() => setViewTab("reports")}
-        >
-          View Reports
-        </div>
-        <div
           className={`card-tab ${viewTab === "classes" ? "active" : ""}`}
           onClick={() => setViewTab("classes")}
         >
-          View Classes
+          Classes
+        </div>
+        <div
+          className={`card-tab ${viewTab === "reports" ? "active" : ""}`}
+          onClick={() => setViewTab("reports")}
+        >
+          Reports
         </div>
       </div>
 
@@ -163,8 +147,7 @@ function Student() {
               <th>Learning Outcomes</th>
               <th>Lecturer Recommendations</th>
               <th>Rating</th>
-              <th>Comment</th>
-              <th>Actions</th>
+              { /*<th>Comment</th> */}
             </tr>
           </thead>
           <tbody>
@@ -197,6 +180,7 @@ function Student() {
                       ))}
                     </div>
                   </td>
+                  {/*
                   <td>
                     <input
                       type="text"
@@ -205,9 +189,7 @@ function Student() {
                       onChange={(e) => updateComment(r.id, e.target.value)}
                     />
                   </td>
-                  <td>
-                    {fb.id && <button onClick={() => deleteFeedback(r.id)}>Delete</button>}
-                  </td>
+                  */}
                 </tr>
               );
             })}

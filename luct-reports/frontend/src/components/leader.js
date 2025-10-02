@@ -294,9 +294,9 @@ const ProgramLeader = () => {
   return (
     <div className="pl-page">
       <div className="button-group">
-        <button onClick={() => setView('faculties')}>View Faculties</button>
-        <button onClick={() => setView('courses')}>View Courses</button>
-        <button onClick={() => setView('classes')}>View Classes</button>
+        <button onClick={() => setView('faculties')}>Faculties</button>
+        <button onClick={() => setView('courses')}>Courses</button>
+        <button onClick={() => setView('classes')}>Classes</button>
         <button onClick={() => openModal('faculty')}>Add Faculty</button>
         <button onClick={() => openModal('course')}>Add Course</button>
         <button onClick={() => openModal('class')}>Add Class</button>
