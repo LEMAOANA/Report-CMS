@@ -7,7 +7,8 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  // Get user from localStorage safely
+  const user = JSON.parse(localStorage.getItem("user")) || null;
 
   const handleLogout = () => {
     localStorage.clear();
@@ -27,7 +28,7 @@ function Navbar() {
     { role: "admin", path: "/admin", label: "Admin" },
   ];
 
-  // Filter links: admin only sees admin, everyone sees others + home
+  // Filter links: admin only sees admin, others see home + their dashboards
   const availableLinks = dashboardLinks.filter(link => {
     if (link.role === "admin") return user?.role === "admin";
     return true; // home and other dashboards are always visible
@@ -51,14 +52,14 @@ function Navbar() {
         ))}
       </div>
 
-      {user && (
+      {user ? (
         <div className="navbar-right">
           <div className="profile-container" onClick={toggleProfile}>
-            <div className="avatar">{user.username.charAt(0).toUpperCase()}</div>
+            <div className="avatar">{user?.username?.charAt(0)?.toUpperCase() || "U"}</div>
             <div className="user-info">
-              <span className="user-name">{user.username}</span>
-              <span className={`user-role role-${user.role.replace("_", "-")}`}>
-                {user.role.replace("_", " ")}
+              <span className="user-name">{user?.username || "User"}</span>
+              <span className={`user-role role-${user?.role?.replace("_", "-") || ""}`}>
+                {user?.role?.replace("_", " ") || ""}
               </span>
             </div>
           </div>
@@ -73,6 +74,10 @@ function Navbar() {
           <button className="menu-toggle" onClick={toggleMenu}>
             ☰
           </button>
+        </div>
+      ) : (
+        <div className="navbar-right">
+          <button onClick={() => navigate("/login")}>Login</button>
         </div>
       )}
     </nav>
