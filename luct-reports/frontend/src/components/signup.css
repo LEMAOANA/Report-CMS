@@ -20,6 +20,7 @@
   padding: 20px;
 }
 
+/* Card */
 .signup-container {
   background-color: var(--card-bg);
   padding: 40px 30px;
@@ -30,13 +31,34 @@
   text-align: center;
 }
 
+/* Logo */
+.signup-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.signup-logo img {
+  width: 120px; /* adjust width as needed */
+  height: auto;
+  object-fit: contain; /* keep aspect ratio */
+  box-shadow: 0 4px 8px var(--card-shadow);
+  border: 2px solid var(--primary-color);
+  transition: transform 0.2s ease-in-out;
+}
+
+.signup-logo img:hover {
+  transform: scale(1.05);
+}
+
+/* Title */
 .signup-container h2 {
   margin-bottom: 20px;
   font-size: 1.8rem;
   color: var(--primary-color);
 }
 
-/* Inputs */
+/* Inputs & select */
 .signup-container input,
 .signup-container select {
   width: 100%;
@@ -46,13 +68,14 @@
   border: 1px solid #ccc;
   font-size: 0.95rem;
   box-sizing: border-box;
-  transition: border 0.3s;
+  transition: border 0.3s, box-shadow 0.3s;
 }
 
 .signup-container input:focus,
 .signup-container select:focus {
   border-color: var(--primary-color);
   outline: none;
+  box-shadow: 0 0 5px rgba(0, 122, 255, 0.3);
 }
 
 /* Buttons */
@@ -72,6 +95,11 @@
 .signup-container button:hover {
   background-color: #005fcc;
   transform: translateY(-1px);
+}
+
+.signup-container button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 /* Error messages */
@@ -97,10 +125,12 @@
 .login-link {
   margin-top: 15px;
   font-size: 0.9rem;
+  color: var(--text-color);
 }
 
 .login-link a {
   color: var(--primary-color);
+  font-weight: 600;
   text-decoration: none;
 }
 

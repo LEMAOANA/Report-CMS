@@ -23,8 +23,8 @@
   color: var(--primary-color);
 }
 
-/* Buttons Group */
-.button-group {
+/* View Selector */
+.view-selector {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -32,7 +32,7 @@
   justify-content: center;
 }
 
-.button-group button {
+.view-selector button {
   padding: 10px 16px;
   border-radius: 8px;
   border: none;
@@ -43,7 +43,7 @@
   transition: all 0.3s;
 }
 
-.button-group button:hover {
+.view-selector button:hover {
   background-color: var(--active-color);
 }
 
@@ -69,6 +69,30 @@
 .faculty-table th {
   background-color: var(--secondary-color);
   color: var(--primary-color);
+}
+
+/* Add Icon */
+.add-icon {
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: color 0.3s;
+}
+
+.add-icon:hover {
+  color: var(--active-color);
+}
+
+/* Action Icons (Edit/Delete) */
+.action-icon {
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-right: 10px;
+  transition: color 0.3s;
+}
+
+.action-icon:hover {
+  color: var(--active-color);
 }
 
 .faculty-table tr:hover {
@@ -155,12 +179,16 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .button-group {
+  .view-selector {
     flex-direction: column;
     align-items: center;
   }
 
   .modal-content {
     width: 90%;
+  }
+
+  .action-icon {
+    margin-right: 5px;
   }
 }

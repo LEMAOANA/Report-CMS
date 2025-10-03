@@ -1,15 +1,19 @@
+/* Colors & variables */
 :root {
-  --primary-color: #007aff;
+  --primary-color: #0c59ab;
   --secondary-color: #f5f5f7;
   --text-color: #1d1d1f;
   --card-bg: #ffffff;
   --card-shadow: rgba(0, 0, 0, 0.08);
   --active-color: #005fcc;
+  --btn-primary: #007aff;
+  --btn-secondary: #28a745;
+  --btn-cancel: #ff4d4f;
 }
 
 /* Container */
 .prl-page {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
   background-color: var(--secondary-color);
@@ -17,18 +21,7 @@
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.prl-page h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: var(--primary-color);
-}
-
-.prl-page p {
-  font-size: 1rem;
-  margin-bottom: 25px;
-}
-
-/* Action Cards */
+/* Tabs / Action Cards */
 .prl-actions {
   display: flex;
   gap: 20px;
@@ -54,11 +47,15 @@
   box-shadow: 0 10px 25px var(--card-shadow);
 }
 
-.card-desc {
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: #555;
-  margin-top: 5px;
+.prl-card.active {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.add-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
 }
 
 /* Tables */
@@ -70,6 +67,8 @@
   overflow: hidden;
   box-shadow: 0 5px 15px var(--card-shadow);
   margin-bottom: 30px;
+  display: block;
+  overflow-x: auto;
 }
 
 .data-table th,
@@ -78,6 +77,7 @@
   text-align: left;
   font-size: 0.9rem;
   border-bottom: 1px solid #eee;
+  white-space: nowrap;
 }
 
 .data-table th {
@@ -89,30 +89,101 @@
   background-color: #f0f8ff;
 }
 
-/* Feedback Form */
-.feedback-input,
-.feedback-textarea {
+/* Star rating inside tables */
+.star-rating {
+  display: flex;
+  gap: 3px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.star {
+  color: #ccc;
+}
+
+.star.filled {
+  color: #f5a623;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
   padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 0.9rem;
   box-sizing: border-box;
 }
 
-.feedback-submit {
+.modal-content {
+  background-color: var(--card-bg);
+  padding: 25px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px var(--card-shadow);
+}
+
+/* Form inside modal */
+.report-form input,
+.report-form select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
   padding: 10px 15px;
-  border-radius: 8px;
   border: none;
-  background-color: var(--primary-color);
-  color: #fff;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.feedback-submit:hover {
-  background-color: var(--active-color);
+.modal-buttons button:first-child {
+  background-color: var(--btn-secondary);
+  color: #fff;
+}
+
+.modal-buttons button:first-child:hover {
+  background-color: #218838;
+}
+
+.modal-buttons button:last-child {
+  background-color: var(--btn-cancel);
+  color: #fff;
+}
+
+.modal-buttons button:last-child:hover {
+  background-color: #d93636;
+}
+
+/* Inputs inside table for comments */
+.data-table input[type="text"] {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.85rem;
 }
 
 /* Responsive */
@@ -124,5 +195,9 @@
 
   .prl-card {
     width: 80%;
+  }
+
+  .data-table {
+    font-size: 0.85rem;
   }
 }

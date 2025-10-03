@@ -1,34 +1,25 @@
 :root {
   --primary-color: #0c59ab;
-  --secondary-color: blue;
+  --secondary-color: #f0f4ff;
   --text-color: #1d1d1f;
-  --card-bg: blue;
+  --card-bg: #ffffff;
   --card-shadow: rgba(0, 0, 0, 0.08);
   --active-color: #005fcc;
 }
 
 /* Container */
 .student-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
   background-color: var(--secondary-color);
   color: var(--text-color);
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px var(--card-shadow);
 }
 
-.student-container h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: var(--primary-color);
-}
-
-.student-container p {
-  font-size: 1rem;
-  margin-bottom: 25px;
-}
-
-/* Card Tabs */
+/* Tabs */
 .student-cards {
   display: flex;
   gap: 20px;
@@ -38,24 +29,30 @@
 
 .card-tab {
   background-color: var(--card-bg);
-  padding: 20px 30px;
+  padding: 15px 25px;
   border-radius: 12px;
   box-shadow: 0 5px 15px var(--card-shadow);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
   text-align: center;
-  min-width: 150px;
+  min-width: 120px;
 }
 
 .card-tab:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px var(--card-shadow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--card-shadow);
 }
 
 .card-tab.active {
   background-color: var(--primary-color);
   color: #fff;
+}
+
+/* Table wrapper - horizontal scroll */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
 }
 
 /* Tables */
@@ -65,22 +62,28 @@
   background-color: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 5px 15px var(--card-shadow);
+  box-shadow: 0 3px 10px var(--card-shadow);
+  min-width: 800px; /* prevent collapse for long tables */
 }
 
 .report-table th,
 .report-table td {
-  padding: 12px 10px;
+  padding: 10px;
   text-align: left;
   font-size: 0.9rem;
   border-bottom: 1px solid #eee;
+  word-wrap: break-word; /* wrap long text */
 }
 
 .report-table th {
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: #000000;
+  position: sticky;
+  top: 0; /* keep header fixed while scrolling */
+  z-index: 2;
 }
 
+/* Star rating */
 .star-rating {
   cursor: pointer;
 }
@@ -92,4 +95,23 @@
 
 .star.filled {
   color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .student-container {
+    padding: 15px;
+  }
+
+  .card-tab {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    min-width: 100px;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
 }

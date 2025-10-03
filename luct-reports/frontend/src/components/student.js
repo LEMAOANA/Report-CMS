@@ -10,7 +10,7 @@ function Student() {
   const [viewTab, setViewTab] = useState(null); // "reports" or "classes"
   const userId = JSON.parse(localStorage.getItem("user"))?.id || 21;
 
-  // -------------------- Fetch Data --------------------
+  // Fetch data
   const fetchReports = async () => {
     try {
       const res = await fetch(`${BASE_URL}/reports`);
@@ -47,7 +47,6 @@ function Student() {
     fetchClasses();
   }, []);
 
-  // -------------------- Feedback Helpers --------------------
   const getFeedbackForReport = (reportId) =>
     feedbacks.find((f) => f.reportId === reportId && f.userId === userId);
 
@@ -66,7 +65,6 @@ function Student() {
     });
   };
 
-  // -------------------- Actions --------------------
   const sendRating = async (reportId, rating) => {
     const existingFeedback = getFeedbackForReport(reportId);
     updateLocalFeedback(reportId, { rating, comment: existingFeedback?.comment || "" });
@@ -125,105 +123,95 @@ function Student() {
           className={`card-tab ${viewTab === "reports" ? "active" : ""}`}
           onClick={() => setViewTab("reports")}
         >
-          Reports
+          Rate Reports
         </div>
       </div>
 
-      {/* Reports Table */}
-      {viewTab === "reports" && (
-        <table className="report-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Week</th>
-              <th>Date</th>
-              <th>Course</th>
-              <th>Class</th>
-              <th>Students Present</th>
-              <th>Total Students</th>
-              <th>Venue</th>
-              <th>Scheduled Time</th>
-              <th>Topic</th>
-              <th>Learning Outcomes</th>
-              <th>Lecturer Recommendations</th>
-              <th>Rating</th>
-              { /*<th>Comment</th> */}
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((r) => {
-              const fb = getFeedbackForReport(r.id) || {};
-              return (
-                <tr key={r.id}>
-                  <td>{r.id}</td>
-                  <td>{r.weekOfReporting}</td>
-                  <td>{r.dateOfLecture}</td>
-                  <td>{r.Course?.name || "N/A"}</td>
-                  <td>{r.Class?.name || "N/A"}</td>
-                  <td>{r.actualStudentsPresent}</td>
-                  <td>{r.totalRegisteredStudents}</td>
-                  <td>{r.venue}</td>
-                  <td>{r.scheduledTime}</td>
-                  <td>{r.topicTaught}</td>
-                  <td>{r.learningOutcomes}</td>
-                  <td>{r.lecturerRecommendations}</td>
-                  <td>
-                    <div className="star-rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                          key={star}
-                          className={fb.rating >= star ? "star filled" : "star"}
-                          onClick={() => sendRating(r.id, star)}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  {/*
-                  <td>
-                    <input
-                      type="text"
-                      value={fb.comment || ""}
-                      placeholder="Add comment"
-                      onChange={(e) => updateComment(r.id, e.target.value)}
-                    />
-                  </td>
-                  */}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-
-      {/* Classes Table */}
-      {viewTab === "classes" && (
-        <table className="report-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Year</th>
-              <th>Semester</th>
-              <th>Venue</th>
-              <th>Scheduled Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {classes.map((c) => (
-              <tr key={c.id}>
-                <td>{c.id}</td>
-                <td>{c.name}</td>
-                <td>{c.year}</td>
-                <td>{c.semester}</td>
-                <td>{c.venue}</td>
-                <td>{c.scheduledTime}</td>
+      {/* Scrollable Table Wrapper */}
+      <div className="table-wrapper">
+        {viewTab === "reports" && (
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Week</th>
+                <th>Date</th>
+                <th>Course</th>
+                <th>Class</th>
+                <th>Students Present</th>
+                <th>Total Students</th>
+                <th>Venue</th>
+                <th>Scheduled Time</th>
+                <th>Topic</th>
+                <th>Learning Outcomes</th>
+                <th>Lecturer Recommendations</th>
+                <th>Rate</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {reports.map((r) => {
+                const fb = getFeedbackForReport(r.id) || {};
+                return (
+                  <tr key={r.id}>
+                    <td>{r.id}</td>
+                    <td>{r.weekOfReporting}</td>
+                    <td>{r.dateOfLecture}</td>
+                    <td>{r.Course?.name || "N/A"}</td>
+                    <td>{r.Class?.name || "N/A"}</td>
+                    <td>{r.actualStudentsPresent}</td>
+                    <td>{r.totalRegisteredStudents}</td>
+                    <td>{r.venue}</td>
+                    <td>{r.scheduledTime}</td>
+                    <td>{r.topicTaught}</td>
+                    <td>{r.learningOutcomes}</td>
+                    <td>{r.lecturerRecommendations}</td>
+                    <td>
+                      <div className="star-rating">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={fb.rating >= star ? "star filled" : "star"}
+                            onClick={() => sendRating(r.id, star)}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+
+        {viewTab === "classes" && (
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Semester</th>
+                <th>Venue</th>
+                <th>Scheduled Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {classes.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td>{c.name}</td>
+                  <td>{c.year}</td>
+                  <td>{c.semester}</td>
+                  <td>{c.venue}</td>
+                  <td>{c.scheduledTime}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./navbar.css";
+import Logo from "./assets/LOGO2.png"; // ✅ import logo
 
 function Navbar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Get user from localStorage safely
   const user = JSON.parse(localStorage.getItem("user")) || null;
 
   const handleLogout = () => {
@@ -18,9 +18,8 @@ function Navbar() {
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
 
-  // List of all dashboards + home
   const dashboardLinks = [
-    { role: "all", path: "/", label: "Home" }, // always visible
+    { role: "all", path: "/", label: "Home" },
     { role: "student", path: "/student", label: "Student" },
     { role: "lecturer", path: "/lecturer", label: "Lecturer" },
     { role: "principal_lecturer", path: "/principal", label: "Principal Lecturer" },
@@ -28,16 +27,17 @@ function Navbar() {
     { role: "admin", path: "/admin", label: "Admin" },
   ];
 
-  // Filter links: admin only sees admin, others see home + their dashboards
   const availableLinks = dashboardLinks.filter(link => {
     if (link.role === "admin") return user?.role === "admin";
-    return true; // home and other dashboards are always visible
+    return true;
   });
 
   return (
     <nav className="navbar-modern">
+      {/* ✅ Logo + Text */}
       <div className="navbar-left" onClick={() => navigate("/")}>
-        <span className="logo">LUCT REPORTS</span>
+        <img src={Logo} alt="Logo" className="navbar-logo" />
+        <span className="brand-text">LUCT REPORTS</span>
       </div>
 
       <div className={`navbar-center ${menuOpen ? "open" : ""}`}>
@@ -52,7 +52,7 @@ function Navbar() {
         ))}
       </div>
 
-      {user ? (
+      {user && (
         <div className="navbar-right">
           <div className="profile-container" onClick={toggleProfile}>
             <div className="avatar">{user?.username?.charAt(0)?.toUpperCase() || "U"}</div>
@@ -74,10 +74,6 @@ function Navbar() {
           <button className="menu-toggle" onClick={toggleMenu}>
             ☰
           </button>
-        </div>
-      ) : (
-        <div className="navbar-right">
-          <button onClick={() => navigate("/login")}>Login</button>
         </div>
       )}
     </nav>

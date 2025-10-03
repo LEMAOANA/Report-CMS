@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai"; // Plus icon
 import "./lecturer.css";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -6,6 +7,7 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 function LecturerPage() {
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
+  // -------------------- State --------------------
   const [reports, setReports] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -13,11 +15,8 @@ function LecturerPage() {
   const [courses, setCourses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [users, setUsers] = useState([]);
-
+  const [activeTab, setActiveTab] = useState("classes"); // "classes", "reports", "feedbacks"
   const [showAddReportModal, setShowAddReportModal] = useState(false);
-  const [showClasses, setShowClasses] = useState(false);
-  const [showReports, setShowReports] = useState(false);
-  const [showFeedbacks, setShowFeedbacks] = useState(false);
 
   const [newReport, setNewReport] = useState({
     facultyId: "",
@@ -35,7 +34,7 @@ function LecturerPage() {
     lecturerRecommendations: "",
   });
 
-  // -------------------- Fetch Data --------------------
+  // -------------------- Fetch Functions --------------------
   const fetchReports = async () => {
     try {
       const res = await fetch(`${BASE_URL}/reports`);
@@ -116,7 +115,7 @@ function LecturerPage() {
     fetchUsers();
   }, []);
 
-  // -------------------- CRUD --------------------
+  // -------------------- CRUD Operations --------------------
   const addReport = async () => {
     if (Object.values(newReport).some((v) => v === "")) {
       return alert("Please fill all fields");
@@ -180,33 +179,30 @@ function LecturerPage() {
   // -------------------- Render --------------------
   return (
     <div className="lecturer-container">
-      {/* Action Cards */}
+      {/* Tabs */}
       <div className="lecturer-cards">
+        {["classes", "reports", "feedbacks"].map((tab) => (
+          <div
+            key={tab}
+            className={`card-tab ${activeTab === tab ? "active" : ""}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === "classes" ? "Classes" : tab === "reports" ? "Reports" : "Ratings"}
+          </div>
+        ))}
+
+        {/* Add Report Icon */}
         <div
-          className={`card-tab ${showClasses ? "active" : ""}`}
-          onClick={() => setShowClasses(!showClasses)}
+          className="card-tab add-icon"
+          title="Add Report"
+          onClick={() => setShowAddReportModal(true)}
         >
-          Classes
-        </div>
-        <div
-          className={`card-tab ${showReports ? "active" : ""}`}
-          onClick={() => setShowReports(!showReports)}
-        >
-          Reports
-        </div>
-        <div
-          className={`card-tab ${showFeedbacks ? "active" : ""}`}
-          onClick={() => setShowFeedbacks(!showFeedbacks)}
-        >
-          Ratings
-        </div>
-        <div className="card-tab" onClick={() => setShowAddReportModal(true)}>
-          Add Report
+          <AiOutlinePlus size={20} />
         </div>
       </div>
 
       {/* Classes Table */}
-      {showClasses && (
+      {activeTab === "classes" && (
         <table className="report-table">
           <thead>
             <tr>
@@ -243,7 +239,7 @@ function LecturerPage() {
       )}
 
       {/* Reports Table */}
-      {showReports && (
+      {activeTab === "reports" && (
         <table className="report-table">
           <thead>
             <tr>
@@ -306,7 +302,6 @@ function LecturerPage() {
                       >
                         Edit
                       </button>
-                      <button onClick={() => deleteReport(r.id)}>Delete</button>
                     </td>
                   </tr>
                 );
@@ -315,16 +310,15 @@ function LecturerPage() {
         </table>
       )}
 
-      {/* Feedbacks Table */}
-      {showFeedbacks && (
+      {/* Feedback Table */}
+      {activeTab === "feedbacks" && (
         <table className="report-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Report ID</th>
               <th>Report Topic</th>
               <th>Week</th>
-              <th>Date of Lecture</th>
+              <th>Date</th>
               <th>Score</th>
               <th>Feedback</th>
               <th>Rated By</th>
@@ -345,15 +339,14 @@ function LecturerPage() {
                 return (
                   <tr key={f.id}>
                     <td>{f.id}</td>
-                    <td>{f.reportId}</td>
                     <td>{report?.topicTaught || "N/A"}</td>
                     <td>{report?.weekOfReporting || "N/A"}</td>
                     <td>{report?.dateOfLecture || "N/A"}</td>
                     <td>{f.rating || "N/A"}</td>
                     <td>{f.comment || "N/A"}</td>
                     <td>{rater?.username || "N/A"}</td>
-                    <td>{new Date(f.createdAt).toLocaleString() || "N/A"}</td>
-                    <td>{new Date(f.updatedAt).toLocaleString() || "N/A"}</td>
+                    <td>{new Date(f.createdAt).toLocaleString()}</td>
+                    <td>{new Date(f.updatedAt).toLocaleString()}</td>
                   </tr>
                 );
               })}
@@ -367,19 +360,16 @@ function LecturerPage() {
           <div className="modal-content">
             <h3>Submit New Report</h3>
             <div className="report-form">
+              {/* Class Selection */}
               <select
                 value={newReport.classId}
                 onChange={(e) => {
                   const selectedClassId = parseInt(e.target.value);
-                  const selectedClass = classes.find(
-                    (cl) => cl.id === selectedClassId
-                  );
+                  const selectedClass = classes.find((cl) => cl.id === selectedClassId);
                   const selectedCourse = courses.find(
                     (c) => c.id === selectedClass?.courseId
                   );
-
-                  const studentCount = users.filter((u) => u.role === "student")
-                    .length;
+                  const studentCount = users.filter((u) => u.role === "student").length;
 
                   setNewReport({
                     ...newReport,
@@ -402,6 +392,7 @@ function LecturerPage() {
                   ))}
               </select>
 
+              {/* Display Faculty and Course */}
               <input
                 type="text"
                 value={
@@ -424,6 +415,8 @@ function LecturerPage() {
                 disabled
                 placeholder="Lecturer"
               />
+
+              {/* Report Details */}
               <input
                 type="number"
                 placeholder="Week of Reporting"
@@ -451,14 +444,12 @@ function LecturerPage() {
                   })
                 }
               />
-
               <input
                 type="number"
                 placeholder="Total Students"
                 value={newReport.totalRegisteredStudents || 0}
                 readOnly
               />
-
               <input
                 type="text"
                 placeholder="Venue"
@@ -506,6 +497,7 @@ function LecturerPage() {
                 }
               />
 
+              {/* Modal Buttons */}
               <div className="modal-buttons">
                 <button onClick={addReport}>Submit</button>
                 <button onClick={() => setShowAddReportModal(false)}>

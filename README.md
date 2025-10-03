@@ -24,6 +24,7 @@
     npm install
     npm run server
 
+#
 Case 1: Deployed Backend + Local Frontend
     1️⃣ Backend setup (on hosting platform like Render, Railway, Heroku)
         Deploy your backend.

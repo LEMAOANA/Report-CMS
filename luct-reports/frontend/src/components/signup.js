@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { signup } from "../services/api";
 import { saveAuth } from "../utils/auth";
 import "./signup.css";
+import Logo from "./assets/LOGO2.png"; // Add this import
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -50,6 +51,11 @@ function Signup() {
   return (
     <div className="signup-wrapper">
       <div className="signup-container">
+        {/* Logo at the top */}
+        <div className="signup-logo">
+          <img src={Logo} alt="App Logo" />
+        </div>
+
         <h2>Create an Account</h2>
         {error && <p className="error">{error}</p>}
         <form onSubmit={handleSubmit}>

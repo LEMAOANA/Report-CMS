@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FaPlusCircle, FaEdit, FaTrash } from 'react-icons/fa';
 import './leader.css';
 
 const ProgramLeader = () => {
@@ -8,14 +9,13 @@ const ProgramLeader = () => {
   const [courses, setCourses] = useState([]);
   const [classes, setClasses] = useState([]);
 
-  // -------------------- View Toggles --------------------
+  // -------------------- View State --------------------
   const [view, setView] = useState(''); // 'faculties', 'courses', 'classes'
 
   // -------------------- Modal States --------------------
   const [showFacultyModal, setShowFacultyModal] = useState(false);
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showClassModal, setShowClassModal] = useState(false);
-
   const [modalData, setModalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
 
@@ -156,10 +156,8 @@ const ProgramLeader = () => {
   // -------------------- Modal Handlers --------------------
   const openModal = (type, data = {}, editing = false) => {
     if (type === 'class' && !editing) {
-      const studentCount = users.filter(u => u.role === 'student').length;
-      data.totalRegisteredStudents = studentCount;
+      data.totalRegisteredStudents = users.filter(u => u.role === 'student').length;
     }
-
     setModalData(data);
     setIsEditing(editing);
     if (type === 'faculty') setShowFacultyModal(true);
@@ -187,7 +185,13 @@ const ProgramLeader = () => {
                 <th>Name</th>
                 <th>Created At</th>
                 <th>Updated At</th>
-                <th>Actions</th>
+                <th>
+                  <FaPlusCircle
+                    className="add-icon"
+                    title="Add Faculty"
+                    onClick={() => openModal('faculty')}
+                  />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -198,8 +202,8 @@ const ProgramLeader = () => {
                   <td>{new Date(f.createdAt).toLocaleString()}</td>
                   <td>{new Date(f.updatedAt).toLocaleString()}</td>
                   <td>
-                    <button onClick={() => openModal('faculty', f, true)}>Edit</button>
-                    <button onClick={() => deleteItem('faculties', f.id)}>Delete</button>
+                    <FaEdit className="action-icon" onClick={() => openModal('faculty', f, true)} />
+                    <FaTrash className="action-icon" onClick={() => deleteItem('faculties', f.id)} />
                   </td>
                 </tr>
               ))}
@@ -214,13 +218,14 @@ const ProgramLeader = () => {
                 <th>ID</th>
                 <th>Name</th>
                 <th>Code</th>
-                <th>Description</th>
                 <th>Faculty</th>
-                <th>Program Leader</th>
-                <th>Principal Lecturer</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Actions</th>
+                <th>
+                  <FaPlusCircle
+                    className="add-icon"
+                    title="Add Course"
+                    onClick={() => openModal('course')}
+                  />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -229,15 +234,10 @@ const ProgramLeader = () => {
                   <td>{c.id}</td>
                   <td>{c.name}</td>
                   <td>{c.code}</td>
-                  <td>{c.description}</td>
                   <td>{c.Faculty?.name || 'N/A'}</td>
-                  <td>{c.programLeader?.username || 'N/A'}</td>
-                  <td>{c.principalLecturer?.username || 'N/A'}</td>
-                  <td>{new Date(c.createdAt).toLocaleString()}</td>
-                  <td>{new Date(c.updatedAt).toLocaleString()}</td>
                   <td>
-                    <button onClick={() => openModal('course', c, true)}>Edit</button>
-                    <button onClick={() => deleteItem('courses', c.id)}>Delete</button>
+                    <FaEdit className="action-icon" onClick={() => openModal('course', c, true)} />
+                    <FaTrash className="action-icon" onClick={() => deleteItem('courses', c.id)} />
                   </td>
                 </tr>
               ))}
@@ -251,16 +251,14 @@ const ProgramLeader = () => {
               <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Year</th>
-                <th>Semester</th>
-                <th>Venue</th>
-                <th>Time</th>
-                <th>Total Students</th>
                 <th>Course</th>
-                <th>Lecturer</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Actions</th>
+                <th>
+                  <FaPlusCircle
+                    className="add-icon"
+                    title="Add Class"
+                    onClick={() => openModal('class')}
+                  />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -268,18 +266,10 @@ const ProgramLeader = () => {
                 <tr key={cls.id}>
                   <td>{cls.id}</td>
                   <td>{cls.name}</td>
-                  <td>{cls.year}</td>
-                  <td>{cls.semester}</td>
-                  <td>{cls.venue}</td>
-                  <td>{cls.scheduledTime}</td>
-                  <td>{cls.totalRegisteredStudents}</td>
                   <td>{cls.Course?.name || 'N/A'}</td>
-                  <td>{cls.lecturer?.username || 'N/A'}</td>
-                  <td>{new Date(cls.createdAt).toLocaleString()}</td>
-                  <td>{new Date(cls.updatedAt).toLocaleString()}</td>
                   <td>
-                    <button onClick={() => openModal('class', cls, true)}>Edit</button>
-                    <button onClick={() => deleteItem('classes', cls.id)}>Delete</button>
+                    <FaEdit className="action-icon" onClick={() => openModal('class', cls, true)} />
+                    <FaTrash className="action-icon" onClick={() => deleteItem('classes', cls.id)} />
                   </td>
                 </tr>
               ))}
@@ -293,13 +283,10 @@ const ProgramLeader = () => {
 
   return (
     <div className="pl-page">
-      <div className="button-group">
+      <div className="view-selector">
         <button onClick={() => setView('faculties')}>Faculties</button>
         <button onClick={() => setView('courses')}>Courses</button>
         <button onClick={() => setView('classes')}>Classes</button>
-        <button onClick={() => openModal('faculty')}>Add Faculty</button>
-        <button onClick={() => openModal('course')}>Add Course</button>
-        <button onClick={() => openModal('class')}>Add Class</button>
       </div>
 
       <div className="table-container">{renderTable()}</div>

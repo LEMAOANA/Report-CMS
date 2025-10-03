@@ -3,7 +3,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
@@ -11,6 +11,14 @@
     "sequelize": "^6.37.7"
   },
   "scripts": {
-    "server": "node server.js"
-  }
+    "server": "node server.js",
+    "start": "node server.js"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
