@@ -53,7 +53,7 @@ export const createReport = async (req, res) => {
     if (!course) return res.status(404).json({ message: "Course not found" });
 
     const lecturer = await User.findByPk(lecturerId);
-    if (!lecturer || lecturer.role !== "lecturer") {
+    if (!lecturer || !["lecturer", "principal_lecturer"].includes(lecturer.role)) {
       return res.status(404).json({ message: "Lecturer not found or invalid role" });
     }
 
@@ -127,7 +127,7 @@ export const updateReport = async (req, res) => {
     // Optional: validate associations if being updated
     if (req.body.lecturerId) {
       const lecturer = await User.findByPk(req.body.lecturerId);
-      if (!lecturer || lecturer.role !== "lecturer") {
+      if (!lecturer || !["lecturer", "principal_lecturer"].includes(lecturer.role)) {
         return res.status(404).json({ message: "Lecturer not found or invalid role" });
       }
     }

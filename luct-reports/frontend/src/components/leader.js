@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { FaPlusCircle, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlusCircle, FaEdit, FaTrash, FaStar, FaDownload } from 'react-icons/fa';
 import './leader.css';
 
 const ProgramLeader = () => {
+  const currentUser = JSON.parse(localStorage.getItem('user'));
+
   // -------------------- Data States --------------------
   const [faculties, setFaculties] = useState([]);
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
 
   // -------------------- View State --------------------
-  const [view, setView] = useState(''); // 'faculties', 'courses', 'classes'
+  const [view, setView] = useState('faculties'); // 'faculties', 'courses', 'classes', 'reports'
 
   // -------------------- Modal States --------------------
   const [showFacultyModal, setShowFacultyModal] = useState(false);
@@ -19,7 +23,6 @@ const ProgramLeader = () => {
   const [modalData, setModalData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
 
-  // -------------------- Backend Base URL --------------------
   const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:3000/api';
 
   // -------------------- Fetch Functions --------------------
@@ -63,11 +66,33 @@ const ProgramLeader = () => {
     }
   };
 
+  const fetchReports = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/reports?lecturerId=${currentUser?.id}`);
+      const data = await res.json();
+      setReports(data.reports || []);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    }
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/reportFeedbacks`);
+      const data = await res.json();
+      setFeedbacks(data.feedbacks || []);
+    } catch (error) {
+      console.error('Error fetching feedbacks:', error);
+    }
+  };
+
   useEffect(() => {
     fetchFaculties();
     fetchUsers();
     fetchCourses();
     fetchClasses();
+    fetchReports();
+    fetchFeedbacks();
   }, []);
 
   // -------------------- CRUD Functions --------------------
@@ -115,7 +140,7 @@ const ProgramLeader = () => {
   };
 
   const saveClass = async (id) => {
-    const { name, year, semester, venue, scheduledTime, courseId, lecturerId } = modalData;
+    const { name, year, semester, venue, scheduledTime, courseId, lecturerId, totalRegisteredStudents } = modalData;
     if (!name || !year || !semester || !venue || !scheduledTime || !courseId || !lecturerId)
       return alert('Fill in all fields');
 
@@ -173,8 +198,191 @@ const ProgramLeader = () => {
     setShowClassModal(false);
   };
 
+  // -------------------- Feedback Helpers --------------------
+  const getFeedbackForReport = (reportId) =>
+    feedbacks.find(f => f.reportId === reportId && f.userId === currentUser?.id);
+
+  const updateLocalFeedback = (reportId, updated) => {
+    setFeedbacks(prev => {
+      const idx = prev.findIndex(f => f.reportId === reportId && f.userId === currentUser?.id);
+      if (idx > -1) {
+        const newArr = [...prev];
+        newArr[idx] = { ...newArr[idx], ...updated };
+        return newArr;
+      } else {
+        return [...prev, { ...updated, reportId, userId: currentUser?.id, id: updated.id || Math.random() }];
+      }
+    });
+  };
+
+  const sendRating = async (reportId, rating) => {
+    const existingFeedback = getFeedbackForReport(reportId);
+    updateLocalFeedback(reportId, { rating, comment: existingFeedback?.comment || '' });
+
+    try {
+      const url = existingFeedback
+        ? `${BASE_URL}/reportFeedbacks/${existingFeedback.id}`
+        : `${BASE_URL}/reportFeedbacks/${reportId}`;
+      const method = existingFeedback ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating,
+          comment: existingFeedback?.comment || '',
+          userId: currentUser?.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (!existingFeedback && data.feedback?.id) {
+        updateLocalFeedback(reportId, { id: data.feedback.id });
+      }
+    } catch (err) {
+      console.error('Error submitting rating:', err);
+    }
+  };
+
+  const submitComment = async (reportId, comment) => {
+    const existingFeedback = getFeedbackForReport(reportId);
+    if (existingFeedback) {
+      updateLocalFeedback(reportId, { comment });
+      try {
+        await fetch(`${BASE_URL}/reportFeedbacks/${existingFeedback.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: existingFeedback.rating, comment }),
+        });
+      } catch (err) {
+        console.error('Error updating comment:', err);
+      }
+    } else {
+      updateLocalFeedback(reportId, { comment, rating: 0 });
+      try {
+        const res = await fetch(`${BASE_URL}/reportFeedbacks/${reportId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ comment, rating: 0, userId: currentUser?.id }),
+        });
+        const data = await res.json();
+        if (data.feedback?.id) updateLocalFeedback(reportId, { id: data.feedback.id });
+      } catch (err) {
+        console.error('Error creating comment:', err);
+      }
+    }
+  };
+
+  // -------------------- CSV Export --------------------
+  const downloadCSV = () => {
+    if (!reports.length) return;
+    const headers = [
+      'ID', 'Faculty', 'Course', 'Class', 'Date of Lecture',
+      'Week of Reporting', 'Actual Students Present', 'Total Registered Students',
+      'Venue', 'Scheduled Time', 'Topic Taught', 'Learning Outcomes', 'Lecturer Recommendations'
+    ];
+    const rows = reports.map(r => [
+      r.id,
+      r.facultyName || '',
+      r.courseName || '',
+      r.className || '',
+      r.dateOfLecture || '',
+      r.weekOfReporting || '',
+      r.actualStudentsPresent || '',
+      r.totalRegisteredStudents || '',
+      r.venue || '',
+      r.scheduledTime || '',
+      r.topicTaught || '',
+      r.learningOutcomes || '',
+      r.lecturerRecommendations || ''
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers, ...rows].map(e => e.join(',')).join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'reports.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // -------------------- Render Reports --------------------
+  const renderReports = () => (
+    <>
+      <button className="download-btn" onClick={downloadCSV}>
+        <FaDownload /> Download CSV
+      </button>
+      <table className="faculty-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Faculty</th>
+            <th>Course</th>
+            <th>Class</th>
+            <th>Date</th>
+            <th>Topic</th>
+            <th>Attendance</th>
+            <th>Rating</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reports.map(report => {
+            const feedback = getFeedbackForReport(report.id) || {};
+            return (
+              <tr key={report.id}>
+                <td>{report.id}</td>
+                <td>{report.facultyName}</td>
+                <td>{report.courseName}</td>
+                <td>{report.className}</td>
+                <td>{report.dateOfLecture}</td>
+                <td>{report.topicTaught}</td>
+                <td>{report.actualStudentsPresent}/{report.totalRegisteredStudents}</td>
+                <td>
+                  {[1,2,3,4,5].map(star => (
+                    <FaStar
+                      key={star}
+                      color={star <= (feedback.rating || 0) ? '#ffc107' : '#e4e5e9'}
+                      onClick={() => sendRating(report.id, star)}
+                      style={{ cursor: 'pointer', marginRight: 2 }}
+                    />
+                  ))}
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    placeholder="Add comment"
+                    value={feedback.comment || ''}
+                    onChange={e => submitComment(report.id, e.target.value)}
+                  />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
+  );
+
   // -------------------- Render Table --------------------
   const renderTable = () => {
+    switch (view) {
+      case 'faculties':
+      case 'courses':
+      case 'classes':
+        return renderCurrentCRUDTable();
+      case 'reports':
+        return renderReports();
+      default:
+        return null;
+    }
+  };
+
+  const renderCurrentCRUDTable = () => {
     switch (view) {
       case 'faculties':
         return (
@@ -186,11 +394,7 @@ const ProgramLeader = () => {
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>
-                  <FaPlusCircle
-                    className="add-icon"
-                    title="Add Faculty"
-                    onClick={() => openModal('faculty')}
-                  />
+                  <FaPlusCircle className="add-icon" title="Add Faculty" onClick={() => openModal('faculty')} />
                 </th>
               </tr>
             </thead>
@@ -219,12 +423,12 @@ const ProgramLeader = () => {
                 <th>Name</th>
                 <th>Code</th>
                 <th>Faculty</th>
+                <th>Program Leader</th>
+                <th>Principal Lecturer</th>
+                <th>Created At</th>
+                <th>Updated At</th>
                 <th>
-                  <FaPlusCircle
-                    className="add-icon"
-                    title="Add Course"
-                    onClick={() => openModal('course')}
-                  />
+                  <FaPlusCircle className="add-icon" title="Add Course" onClick={() => openModal('course')} />
                 </th>
               </tr>
             </thead>
@@ -235,6 +439,10 @@ const ProgramLeader = () => {
                   <td>{c.name}</td>
                   <td>{c.code}</td>
                   <td>{c.Faculty?.name || 'N/A'}</td>
+                  <td>{c.ProgramLeader?.username || 'N/A'}</td>
+                  <td>{c.PrincipalLecturer?.username || 'N/A'}</td>
+                  <td>{new Date(c.createdAt).toLocaleString()}</td>
+                  <td>{new Date(c.updatedAt).toLocaleString()}</td>
                   <td>
                     <FaEdit className="action-icon" onClick={() => openModal('course', c, true)} />
                     <FaTrash className="action-icon" onClick={() => deleteItem('courses', c.id)} />
@@ -252,12 +460,11 @@ const ProgramLeader = () => {
                 <th>ID</th>
                 <th>Name</th>
                 <th>Course</th>
+                <th>Lecturer</th>
+                <th>Created At</th>
+                <th>Updated At</th>
                 <th>
-                  <FaPlusCircle
-                    className="add-icon"
-                    title="Add Class"
-                    onClick={() => openModal('class')}
-                  />
+                  <FaPlusCircle className="add-icon" title="Add Class" onClick={() => openModal('class')} />
                 </th>
               </tr>
             </thead>
@@ -267,6 +474,9 @@ const ProgramLeader = () => {
                   <td>{cls.id}</td>
                   <td>{cls.name}</td>
                   <td>{cls.Course?.name || 'N/A'}</td>
+                  <td>{cls.Lecturer?.username || 'N/A'}</td>
+                  <td>{new Date(cls.createdAt).toLocaleString()}</td>
+                  <td>{new Date(cls.updatedAt).toLocaleString()}</td>
                   <td>
                     <FaEdit className="action-icon" onClick={() => openModal('class', cls, true)} />
                     <FaTrash className="action-icon" onClick={() => deleteItem('classes', cls.id)} />
@@ -287,8 +497,8 @@ const ProgramLeader = () => {
         <button onClick={() => setView('faculties')}>Faculties</button>
         <button onClick={() => setView('courses')}>Courses</button>
         <button onClick={() => setView('classes')}>Classes</button>
+        <button onClick={() => setView('reports')}>Reports</button>
       </div>
-
       <div className="table-container">{renderTable()}</div>
 
       {/* -------------------- Modals -------------------- */}
@@ -309,7 +519,6 @@ const ProgramLeader = () => {
           </div>
         </div>
       )}
-
       {showCourseModal && (
         <div className="modal">
           <div className="modal-content">
@@ -366,7 +575,6 @@ const ProgramLeader = () => {
           </div>
         </div>
       )}
-
       {showClassModal && (
         <div className="modal">
           <div className="modal-content">
@@ -399,7 +607,7 @@ const ProgramLeader = () => {
             />
             <input
               type="text"
-              placeholder="Scheduled Time (e.g., 08:00 - 10:00)"
+              placeholder="Scheduled Time"
               value={modalData.scheduledTime || ''}
               onChange={e => setModalData({ ...modalData, scheduledTime: e.target.value })}
             />

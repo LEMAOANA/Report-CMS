@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaDownload } from 'react-icons/fa';
 import './principal.css';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -7,7 +7,6 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 const Principal = () => {
   const currentUser = JSON.parse(localStorage.getItem('user'));
 
-  // -------------------- State --------------------
   const [faculties, setFaculties] = useState([]);
   const [courses, setCourses] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -92,7 +91,7 @@ const Principal = () => {
     });
   };
 
-  // -------------------- Actions --------------------
+  // -------------------- Rating & Comment --------------------
   const sendRating = async (reportId, rating) => {
     const existingFeedback = getFeedbackForReport(reportId);
     updateLocalFeedback(reportId, { rating, comment: existingFeedback?.comment || '' });
@@ -151,6 +150,7 @@ const Principal = () => {
     }
   };
 
+  // -------------------- Add Report --------------------
   const addReport = async () => {
     if (Object.values(newReport).some(v => v === '' || v === 0)) {
       return alert('Please fill all fields correctly.');
@@ -190,24 +190,63 @@ const Principal = () => {
     }
   };
 
+  // -------------------- Download Reports CSV --------------------
+  const downloadCSV = () => {
+    if (reports.length === 0) {
+      alert('No reports available to download.');
+      return;
+    }
+
+    const headers = [
+      'Faculty','Class','Course','Lecturer','Week of Reporting','Date of Lecture',
+      'Actual Students Present','Total Registered Students','Venue','Scheduled Time',
+      'Topic Taught','Learning Outcomes','Lecturer Recommendations','Created At',
+      'Updated At','Rating','Comment'
+    ];
+
+    const rows = reports.map(r => {
+      const facultyName = faculties.find(f => f.id === r.facultyId)?.name || '';
+      const className = classes.find(cl => cl.id === r.classId)?.name || '';
+      const courseName = courses.find(c => c.id === r.courseId)?.name || '';
+      const lecturerName = users.find(u => u.id === r.lecturerId)?.username || '';
+      const fb = feedbacks.find(f => f.reportId === r.id) || {};
+
+      return [
+        facultyName,className,courseName,lecturerName,r.weekOfReporting,r.dateOfLecture,
+        r.actualStudentsPresent,r.totalRegisteredStudents,r.venue,r.scheduledTime,
+        r.topicTaught,r.learningOutcomes,r.lecturerRecommendations,r.createdAt,r.updatedAt,
+        fb.rating ?? '', fb.comment ?? ''
+      ];
+    });
+
+    const csvContent =
+      '\uFEFF' +
+      [headers.join(','), ...rows.map(row => row.map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Reports_Feedbacks_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // -------------------- Render --------------------
   return (
     <div className="prl-page">
-
-      {/* Tabs / Cards */}
-      <div className="prl-actions">
-        {['courses', 'classes', 'reports', 'feedbacks'].map(tab => (
+      {/* Tabs */}
+      <div className="prl-tabs">
+        {['courses','classes','reports','feedbacks'].map(tab => (
           <div
             key={tab}
-            className={`prl-card ${activeTab === tab ? 'active' : ''}`}
+            className={`prl-tab ${activeTab === tab ? 'active' : ''}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab === 'feedbacks' ? 'Ratings' : tab.charAt(0).toUpperCase() + tab.slice(1)}
           </div>
         ))}
-        <div className="prl-card add-icon" onClick={() => setShowAddReportModal(true)}>
-          <FaPlus style={{ marginRight: '8px' }} /> Add Report
-        </div>
       </div>
 
       {/* Courses Table */}
@@ -219,7 +258,10 @@ const Principal = () => {
           <tbody>
             {courses.map(c => (
               <tr key={c.id}>
-                <td>{c.id}</td><td>{c.name}</td><td>{c.code}</td><td>{c.description}</td>
+                <td>{c.id}</td>
+                <td>{c.name}</td>
+                <td>{c.code}</td>
+                <td>{c.description}</td>
                 <td>{faculties.find(f => f.id === c.facultyId)?.name}</td>
               </tr>
             ))}
@@ -236,8 +278,12 @@ const Principal = () => {
           <tbody>
             {classes.map(cl => (
               <tr key={cl.id}>
-                <td>{cl.id}</td><td>{cl.name}</td><td>{cl.year}</td><td>{cl.semester}</td>
-                <td>{cl.venue}</td><td>{cl.scheduledTime}</td>
+                <td>{cl.id}</td>
+                <td>{cl.name}</td>
+                <td>{cl.year}</td>
+                <td>{cl.semester}</td>
+                <td>{cl.venue}</td>
+                <td>{cl.scheduledTime}</td>
                 <td>{courses.find(c => c.id === cl.courseId)?.name}</td>
               </tr>
             ))}
@@ -247,51 +293,68 @@ const Principal = () => {
 
       {/* Reports Table */}
       {activeTab === 'reports' && (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>Week</th><th>Date</th><th>Topic</th><th>Learning Outcomes</th>
-              <th>Recommendations</th><th>Faculty</th><th>Class</th><th>Course</th><th>Lecturer</th>
-              <th>Actual</th><th>Total</th><th>Rating</th><th>Comment</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map(r => {
-              const lecturerName = users.find(u => u.id === r.lecturerId)?.username || 'N/A';
-              const fb = getFeedbackForReport(r.id) || {};
-              return (
-                <tr key={r.id}>
-                  <td>{r.id}</td><td>{r.weekOfReporting}</td><td>{r.dateOfLecture}</td>
-                  <td>{r.topicTaught}</td><td>{r.learningOutcomes}</td><td>{r.lecturerRecommendations}</td>
-                  <td>{faculties.find(f => f.id === r.facultyId)?.name}</td>
-                  <td>{classes.find(cl => cl.id === r.classId)?.name}</td>
-                  <td>{courses.find(c => c.id === r.courseId)?.name}</td>
-                  <td>{lecturerName}</td>
-                  <td>{r.actualStudentsPresent}</td>
-                  <td>{r.totalRegisteredStudents}</td>
-                  <td>
-                    {[1,2,3,4,5].map(star => (
-                      <span
-                        key={star}
-                        className={fb.rating >= star ? "star filled" : "star"}
-                        onClick={() => sendRating(r.id, star)}
-                      >★</span>
-                    ))}
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      placeholder="Add comment"
-                      defaultValue={fb.comment || ""}
-                      onBlur={(e) => submitComment(r.id, e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') submitComment(r.id, e.target.value); }}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <>
+          <div className="reports-header">
+            <button className="btn-add" onClick={() => setShowAddReportModal(true)}>
+              <FaPlus style={{ marginRight: '6px' }} /> 
+            </button>
+            <button className="btn-download" onClick={downloadCSV}>
+              <FaDownload style={{ marginRight: '6px' }} /> CSV
+            </button>
+          </div>
+
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Faculty</th><th>Class</th><th>Course</th><th>Lecturer</th>
+                <th>Week</th><th>Date</th><th>Actual</th><th>Total</th>
+                <th>Venue</th><th>Time</th><th>Topic</th><th>Learning Outcomes</th>
+                <th>Recommendations</th><th>Rating</th><th>Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map(r => {
+                const lecturerName = users.find(u => u.id === r.lecturerId)?.username || 'N/A';
+                const fb = getFeedbackForReport(r.id) || {};
+                return (
+                  <tr key={r.id}>
+                    <td>{faculties.find(f => f.id === r.facultyId)?.name}</td>
+                    <td>{classes.find(cl => cl.id === r.classId)?.name}</td>
+                    <td>{courses.find(c => c.id === r.courseId)?.name}</td>
+                    <td>{lecturerName}</td>
+                    <td>{r.weekOfReporting}</td>
+                    <td>{r.dateOfLecture}</td>
+                    <td>{r.actualStudentsPresent}</td>
+                    <td>{r.totalRegisteredStudents}</td>
+                    <td>{r.venue}</td>
+                    <td>{r.scheduledTime}</td>
+                    <td>{r.topicTaught}</td>
+                    <td>{r.learningOutcomes}</td>
+                    <td>{r.lecturerRecommendations}</td>
+                    <td>
+                      {[1,2,3,4,5].map(star => (
+                        <span
+                          key={star}
+                          className={fb.rating >= star ? "star filled" : "star"}
+                          onClick={() => sendRating(r.id, star)}
+                        >★</span>
+                      ))}
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        placeholder="Add comment"
+                        defaultValue={fb.comment || ""}
+                        onBlur={(e) => submitComment(r.id, e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') submitComment(r.id, e.target.value); }}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
       )}
 
       {/* Feedbacks Table */}
@@ -324,7 +387,6 @@ const Principal = () => {
           <div className="modal-content">
             <h3>Submit New Report</h3>
             <div className="report-form">
-
               <select
                 value={newReport.classId}
                 onChange={e => {
@@ -366,12 +428,10 @@ const Principal = () => {
                 <button onClick={addReport}>Submit</button>
                 <button onClick={() => setShowAddReportModal(false)}>Cancel</button>
               </div>
-
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };

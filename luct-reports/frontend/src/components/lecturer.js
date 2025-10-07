@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlinePlus } from "react-icons/ai"; // Plus icon
+import { AiOutlinePlus, AiOutlineDownload, AiOutlineEdit } from "react-icons/ai";
 import "./lecturer.css";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -7,7 +7,6 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 function LecturerPage() {
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
-  // -------------------- State --------------------
   const [reports, setReports] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -17,10 +16,7 @@ function LecturerPage() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("classes");
   const [showAddReportModal, setShowAddReportModal] = useState(false);
-
-  // Search text for each tab
   const [searchTerm, setSearchTerm] = useState("");
-
   const [newReport, setNewReport] = useState({
     facultyId: "",
     classId: "",
@@ -168,6 +164,23 @@ function LecturerPage() {
     }
   };
 
+  // -------------------- CSV Download --------------------
+  const downloadCSV = (data, filename) => {
+    if (!data || !data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+      headers.join(","),
+      ...data.map((row) => headers.map((h) => `"${row[h] ?? ""}"`).join(",")),
+    ];
+    const csvData = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(csvData);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // -------------------- Search Filtering --------------------
   const filteredClasses = classes.filter((cl) => {
     const search = searchTerm.toLowerCase();
@@ -202,13 +215,13 @@ function LecturerPage() {
 
   // -------------------- Render --------------------
   return (
-    <div className="lecturer-container">
+    <div className="prl-page">
       {/* Tabs */}
-      <div className="lecturer-cards">
+      <div className="prl-actions">
         {["classes", "reports", "feedbacks"].map((tab) => (
           <div
             key={tab}
-            className={`card-tab ${activeTab === tab ? "active" : ""}`}
+            className={`prl-card ${activeTab === tab ? "active" : ""}`}
             onClick={() => {
               setActiveTab(tab);
               setSearchTerm("");
@@ -221,19 +234,10 @@ function LecturerPage() {
               : "Ratings"}
           </div>
         ))}
-
-        {/* Add Report Icon */}
-        <div
-          className="card-tab add-icon"
-          title="Add Report"
-          onClick={() => setShowAddReportModal(true)}
-        >
-          <AiOutlinePlus size={20} />
-        </div>
       </div>
 
       {/* Search Bar */}
-      <div className="search-bar">
+      <div className="search-bar" style={{ marginBottom: "15px" }}>
         <input
           type="text"
           placeholder={`Search in ${activeTab}...`}
@@ -242,9 +246,38 @@ function LecturerPage() {
         />
       </div>
 
+      {/* Header Actions */}
+      {(activeTab === "reports" || activeTab === "feedbacks") && (
+        <div className="reports-header">
+          {activeTab === "reports" && (
+            <>
+              <button className="btn-add" onClick={() => setShowAddReportModal(true)}>
+                <AiOutlinePlus />
+              </button>
+              <button
+                className="btn-download"
+                onClick={() => downloadCSV(filteredReports, "reports.csv")}
+              >
+                <AiOutlineDownload />
+                CSV
+              </button>
+            </>
+          )}
+          {activeTab === "feedbacks" && (
+            <button
+              className="btn-download"
+              onClick={() => downloadCSV(filteredFeedbacks, "ratings.csv")}
+            >
+              <AiOutlineDownload />
+              CSV
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Classes Table */}
       {activeTab === "classes" && (
-        <table className="report-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -281,7 +314,7 @@ function LecturerPage() {
 
       {/* Reports Table */}
       {activeTab === "reports" && (
-        <table className="report-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -316,13 +349,14 @@ function LecturerPage() {
                   <td>{r.lecturerRecommendations}</td>
                   <td>
                     <button
+                      className="btn-edit"
                       onClick={() => {
                         const updatedVenue =
                           prompt("Venue:", r.venue) || r.venue;
                         updateReport(r.id, { venue: updatedVenue });
                       }}
                     >
-                      Edit
+                      <AiOutlineEdit />
                     </button>
                   </td>
                 </tr>
@@ -333,7 +367,7 @@ function LecturerPage() {
 
       {/* Feedbacks Table */}
       {activeTab === "feedbacks" && (
-        <table className="report-table">
+        <table className="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -363,6 +397,57 @@ function LecturerPage() {
             })}
           </tbody>
         </table>
+      )}
+      {/* Add Report Modal */}
+      {showAddReportModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Submit New Report</h3>
+            <div className="report-form">
+              <select
+                value={newReport.classId}
+                onChange={e => {
+                  const classId = parseInt(e.target.value);
+                  const selectedClass = classes.find(cl => cl.id === classId);
+                  const course = courses.find(c => c.id === selectedClass?.courseId);
+                  setNewReport({
+                    ...newReport,
+                    classId: classId,
+                    courseId: course?.id || '',
+                    facultyId: course?.facultyId || '',
+                    venue: selectedClass?.venue || '',
+                    scheduledTime: selectedClass?.scheduledTime || '',
+                    totalRegisteredStudents: selectedClass?.totalStudents || 0,
+                  });
+                }}
+              >
+                <option value="">Select Class</option>
+                {classes.map(cl => (
+                  <option key={cl.id} value={cl.id}>{cl.name}</option>
+                ))}
+              </select>
+
+              <input type="text" placeholder="Faculty" value={faculties.find(f => f.id === newReport.facultyId)?.name || ''} disabled />
+              <input type="text" placeholder="Course" value={courses.find(c => c.id === newReport.courseId)?.name || ''} disabled />
+              <input type="text" placeholder="Lecturer" value={currentUser?.username || ''} disabled />
+
+              <input type="number" placeholder="Week of Reporting" value={newReport.weekOfReporting} onChange={e => setNewReport({...newReport, weekOfReporting: e.target.value})} />
+              <input type="date" placeholder="Date of Lecture" value={newReport.dateOfLecture} onChange={e => setNewReport({...newReport, dateOfLecture: e.target.value})} />
+              <input type="number" placeholder="Actual Students Present" value={newReport.actualStudentsPresent} onChange={e => setNewReport({...newReport, actualStudentsPresent: e.target.value})} />
+              <input type="number" placeholder="Total Registered Students" value={newReport.totalRegisteredStudents} onChange={e => setNewReport({...newReport, totalRegisteredStudents: e.target.value})}/>
+              <input type="text" placeholder="Venue" value={newReport.venue} onChange={e => setNewReport({...newReport, venue: e.target.value})} />
+              <input type="time" placeholder="Scheduled Time" value={newReport.scheduledTime} onChange={e => setNewReport({...newReport, scheduledTime: e.target.value})} />
+              <input type="text" placeholder="Topic Taught" value={newReport.topicTaught} onChange={e => setNewReport({...newReport, topicTaught: e.target.value})} />
+              <input type="text" placeholder="Learning Outcomes" value={newReport.learningOutcomes} onChange={e => setNewReport({...newReport, learningOutcomes: e.target.value})} />
+              <input type="text" placeholder="Recommendations" value={newReport.lecturerRecommendations} onChange={e => setNewReport({...newReport, lecturerRecommendations: e.target.value})} />
+
+              <div className="modal-buttons">
+                <button onClick={addReport}>Submit</button>
+                <button onClick={() => setShowAddReportModal(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

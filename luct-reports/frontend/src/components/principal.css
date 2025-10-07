@@ -1,4 +1,4 @@
-/* Colors & variables */
+/* ================== Colors & Variables ================== */
 :root {
   --primary-color: #0c59ab;
   --secondary-color: #f5f5f7;
@@ -9,9 +9,10 @@
   --btn-primary: #007aff;
   --btn-secondary: #28a745;
   --btn-cancel: #ff4d4f;
+  --star-filled: #f5a623;
 }
 
-/* Container */
+/* ================== Container ================== */
 .prl-page {
   max-width: 1200px;
   margin: 40px auto;
@@ -21,8 +22,8 @@
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* Tabs / Action Cards */
-.prl-actions {
+/* ================== Tabs ================== */
+.prl-tabs {
   display: flex;
   gap: 20px;
   margin-bottom: 30px;
@@ -30,7 +31,7 @@
   justify-content: center;
 }
 
-.prl-card {
+.prl-tab {
   background-color: var(--card-bg);
   padding: 20px 25px;
   border-radius: 12px;
@@ -42,23 +43,51 @@
   min-width: 180px;
 }
 
-.prl-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px var(--card-shadow);
-}
-
-.prl-card.active {
+.prl-tab.active {
   background-color: var(--primary-color);
   color: #fff;
 }
 
-.add-icon {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-color);
+/* ================== Reports Header Buttons ================== */
+.reports-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-/* Tables */
+.reports-header button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-add {
+  background-color: var(--btn-secondary);
+  color: #fff;
+}
+
+.btn-add:hover {
+  background-color: #218838;
+}
+
+.btn-download {
+  background-color: var(--btn-primary);
+  color: #fff;
+}
+
+.btn-download:hover {
+  background-color: #005fcc;
+}
+
+/* ================== Tables ================== */
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -89,7 +118,7 @@
   background-color: #f0f8ff;
 }
 
-/* Star rating inside tables */
+/* ================== Star Ratings ================== */
 .star-rating {
   display: flex;
   gap: 3px;
@@ -99,13 +128,19 @@
 
 .star {
   color: #ccc;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.star:hover {
+  transform: scale(1.2);
 }
 
 .star.filled {
-  color: #f5a623;
+  color: var(--star-filled);
 }
 
-/* Modal */
+/* ================== Modal ================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -132,7 +167,14 @@
   box-shadow: 0 10px 25px var(--card-shadow);
 }
 
-/* Form inside modal */
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+}
+
+/* ================== Form Inputs ================== */
 .report-form input,
 .report-form select {
   width: 100%;
@@ -143,6 +185,7 @@
   box-sizing: border-box;
 }
 
+/* Buttons in Modal */
 .modal-buttons {
   display: flex;
   justify-content: space-between;
@@ -176,7 +219,7 @@
   background-color: #d93636;
 }
 
-/* Inputs inside table for comments */
+/* ================== Inputs inside table ================== */
 .data-table input[type="text"] {
   padding: 6px 8px;
   border-radius: 6px;
@@ -186,18 +229,33 @@
   font-size: 0.85rem;
 }
 
-/* Responsive */
+/* ================== Responsive ================== */
 @media (max-width: 768px) {
-  .prl-actions {
+  .prl-tabs {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 
-  .prl-card {
-    width: 80%;
+  .reports-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reports-header button {
+    width: 100%;
   }
 
   .data-table {
     font-size: 0.85rem;
   }
+}
+
+/* ================== Optional Scrollbar for Modal ================== */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 3px;
 }
