@@ -8,6 +8,9 @@ function Student() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [classes, setClasses] = useState([]);
   const [viewTab, setViewTab] = useState(null); // "reports" or "classes"
+  const [reportSearch, setReportSearch] = useState(""); // 🔎 search term for reports
+  const [classSearch, setClassSearch] = useState("");   // 🔎 search term for classes
+
   const userId = JSON.parse(localStorage.getItem("user"))?.id || 21;
 
   // Fetch data
@@ -47,6 +50,7 @@ function Student() {
     fetchClasses();
   }, []);
 
+  // --- Feedback Helpers ---
   const getFeedbackForReport = (reportId) =>
     feedbacks.find((f) => f.reportId === reportId && f.userId === userId);
 
@@ -109,6 +113,21 @@ function Student() {
     }
   };
 
+  // --- Filtering Reports & Classes by Search ---
+  const filteredReports = reports.filter((r) =>
+    [r.Course?.name, r.Class?.name, r.topicTaught, r.lecturerRecommendations, r.learningOutcomes]
+      .join(" ")
+      .toLowerCase()
+      .includes(reportSearch.toLowerCase())
+  );
+
+  const filteredClasses = classes.filter((c) =>
+    [c.name, c.year, c.semester, c.venue, c.scheduledTime]
+      .join(" ")
+      .toLowerCase()
+      .includes(classSearch.toLowerCase())
+  );
+
   return (
     <div className="student-container">
       {/* Tabs */}
@@ -130,86 +149,106 @@ function Student() {
       {/* Scrollable Table Wrapper */}
       <div className="table-wrapper">
         {viewTab === "reports" && (
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Week</th>
-                <th>Date</th>
-                <th>Course</th>
-                <th>Class</th>
-                <th>Students Present</th>
-                <th>Total Students</th>
-                <th>Venue</th>
-                <th>Scheduled Time</th>
-                <th>Topic</th>
-                <th>Learning Outcomes</th>
-                <th>Lecturer Recommendations</th>
-                <th>Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((r) => {
-                const fb = getFeedbackForReport(r.id) || {};
-                return (
-                  <tr key={r.id}>
-                    <td>{r.id}</td>
-                    <td>{r.weekOfReporting}</td>
-                    <td>{r.dateOfLecture}</td>
-                    <td>{r.Course?.name || "N/A"}</td>
-                    <td>{r.Class?.name || "N/A"}</td>
-                    <td>{r.actualStudentsPresent}</td>
-                    <td>{r.totalRegisteredStudents}</td>
-                    <td>{r.venue}</td>
-                    <td>{r.scheduledTime}</td>
-                    <td>{r.topicTaught}</td>
-                    <td>{r.learningOutcomes}</td>
-                    <td>{r.lecturerRecommendations}</td>
-                    <td>
-                      <div className="star-rating">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span
-                            key={star}
-                            className={fb.rating >= star ? "star filled" : "star"}
-                            onClick={() => sendRating(r.id, star)}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <>
+            {/* 🔎 Search Box for Reports */}
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search reports..."
+              value={reportSearch}
+              onChange={(e) => setReportSearch(e.target.value)}
+            />
+            <table className="report-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Week</th>
+                  <th>Date</th>
+                  <th>Course</th>
+                  <th>Class</th>
+                  <th>Students Present</th>
+                  <th>Total Students</th>
+                  <th>Venue</th>
+                  <th>Scheduled Time</th>
+                  <th>Topic</th>
+                  <th>Learning Outcomes</th>
+                  <th>Lecturer Recommendations</th>
+                  <th>Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredReports.map((r) => {
+                  const fb = getFeedbackForReport(r.id) || {};
+                  return (
+                    <tr key={r.id}>
+                      <td>{r.id}</td>
+                      <td>{r.weekOfReporting}</td>
+                      <td>{r.dateOfLecture}</td>
+                      <td>{r.Course?.name || "N/A"}</td>
+                      <td>{r.Class?.name || "N/A"}</td>
+                      <td>{r.actualStudentsPresent}</td>
+                      <td>{r.totalRegisteredStudents}</td>
+                      <td>{r.venue}</td>
+                      <td>{r.scheduledTime}</td>
+                      <td>{r.topicTaught}</td>
+                      <td>{r.learningOutcomes}</td>
+                      <td>{r.lecturerRecommendations}</td>
+                      <td>
+                        <div className="star-rating">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              className={fb.rating >= star ? "star filled" : "star"}
+                              onClick={() => sendRating(r.id, star)}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
         )}
 
         {viewTab === "classes" && (
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Year</th>
-                <th>Semester</th>
-                <th>Venue</th>
-                <th>Scheduled Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {classes.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.id}</td>
-                  <td>{c.name}</td>
-                  <td>{c.year}</td>
-                  <td>{c.semester}</td>
-                  <td>{c.venue}</td>
-                  <td>{c.scheduledTime}</td>
+          <>
+            {/* 🔎 Search Box for Classes */}
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search classes..."
+              value={classSearch}
+              onChange={(e) => setClassSearch(e.target.value)}
+            />
+            <table className="report-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Year</th>
+                  <th>Semester</th>
+                  <th>Venue</th>
+                  <th>Scheduled Time</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredClasses.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.id}</td>
+                    <td>{c.name}</td>
+                    <td>{c.year}</td>
+                    <td>{c.semester}</td>
+                    <td>{c.venue}</td>
+                    <td>{c.scheduledTime}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
     </div>

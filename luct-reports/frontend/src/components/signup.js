@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { signup } from "../services/api";
 import { saveAuth } from "../utils/auth";
 import "./signup.css";
-import Logo from "./assets/LOGO2.png"; // Add this import
+import Logo from "./assets/logo.jpg"; // Add this import
 
 function Signup() {
   const [formData, setFormData] = useState({

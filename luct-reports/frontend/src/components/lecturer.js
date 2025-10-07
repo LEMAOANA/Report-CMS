@@ -15,8 +15,11 @@ function LecturerPage() {
   const [courses, setCourses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [users, setUsers] = useState([]);
-  const [activeTab, setActiveTab] = useState("classes"); // "classes", "reports", "feedbacks"
+  const [activeTab, setActiveTab] = useState("classes");
   const [showAddReportModal, setShowAddReportModal] = useState(false);
+
+  // Search text for each tab
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [newReport, setNewReport] = useState({
     facultyId: "",
@@ -165,16 +168,37 @@ function LecturerPage() {
     }
   };
 
-  const deleteReport = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this report?")) return;
-    try {
-      const res = await fetch(`${BASE_URL}/reports/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (data.status === "success") fetchReports();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // -------------------- Search Filtering --------------------
+  const filteredClasses = classes.filter((cl) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      cl.name.toLowerCase().includes(search) ||
+      cl.year.toString().includes(search) ||
+      cl.semester.toString().includes(search) ||
+      cl.venue.toLowerCase().includes(search)
+    );
+  });
+
+  const filteredReports = reports.filter((r) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      r.topicTaught?.toLowerCase().includes(search) ||
+      r.learningOutcomes?.toLowerCase().includes(search) ||
+      r.venue?.toLowerCase().includes(search) ||
+      r.weekOfReporting?.toString().includes(search)
+    );
+  });
+
+  const filteredFeedbacks = feedbacks.filter((f) => {
+    const search = searchTerm.toLowerCase();
+    const report = reports.find((r) => r.id === f.reportId);
+    const rater = users.find((u) => u.id === f.userId);
+    return (
+      report?.topicTaught?.toLowerCase().includes(search) ||
+      f.comment?.toLowerCase().includes(search) ||
+      rater?.username?.toLowerCase().includes(search)
+    );
+  });
 
   // -------------------- Render --------------------
   return (
@@ -185,9 +209,16 @@ function LecturerPage() {
           <div
             key={tab}
             className={`card-tab ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => {
+              setActiveTab(tab);
+              setSearchTerm("");
+            }}
           >
-            {tab === "classes" ? "Classes" : tab === "reports" ? "Reports" : "Ratings"}
+            {tab === "classes"
+              ? "Classes"
+              : tab === "reports"
+              ? "Reports"
+              : "Ratings"}
           </div>
         ))}
 
@@ -199,6 +230,16 @@ function LecturerPage() {
         >
           <AiOutlinePlus size={20} />
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder={`Search in ${activeTab}...`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* Classes Table */}
@@ -217,7 +258,7 @@ function LecturerPage() {
             </tr>
           </thead>
           <tbody>
-            {classes
+            {filteredClasses
               .filter((cl) => cl.lecturerId === currentUser?.id)
               .map((cl) => {
                 const course = courses.find((c) => c.id === cl.courseId);
@@ -247,13 +288,10 @@ function LecturerPage() {
               <th>Faculty</th>
               <th>Class</th>
               <th>Course</th>
-              <th>Lecturer</th>
               <th>Week</th>
               <th>Date</th>
               <th>Present</th>
-              <th>Total Students</th>
               <th>Venue</th>
-              <th>Time</th>
               <th>Topic</th>
               <th>Outcomes</th>
               <th>Recommendations</th>
@@ -261,252 +299,70 @@ function LecturerPage() {
             </tr>
           </thead>
           <tbody>
-            {reports
+            {filteredReports
               .filter((r) => r.lecturerId === currentUser?.id)
-              .map((r) => {
-                const lecturerName =
-                  lecturers.find((l) => l.id === r.lecturerId)?.username ||
-                  currentUser?.username ||
-                  "N/A";
-                return (
-                  <tr key={r.id}>
-                    <td>{r.id}</td>
-                    <td>{r.Faculty?.name || "N/A"}</td>
-                    <td>{r.Class?.name || "N/A"}</td>
-                    <td>{r.Course?.name || "N/A"}</td>
-                    <td>{lecturerName}</td>
-                    <td>{r.weekOfReporting}</td>
-                    <td>{r.dateOfLecture}</td>
-                    <td>{r.actualStudentsPresent}</td>
-                    <td>{r.totalRegisteredStudents}</td>
-                    <td>{r.venue}</td>
-                    <td>{r.scheduledTime}</td>
-                    <td>{r.topicTaught}</td>
-                    <td>{r.learningOutcomes}</td>
-                    <td>{r.lecturerRecommendations}</td>
-                    <td>
-                      <button
-                        onClick={() => {
-                          const updatedVenue =
-                            prompt("Venue:", r.venue) || r.venue;
-                          const updatedPresent =
-                            prompt(
-                              "Actual Students Present:",
-                              r.actualStudentsPresent
-                            ) || r.actualStudentsPresent;
-                          updateReport(r.id, {
-                            venue: updatedVenue,
-                            actualStudentsPresent: updatedPresent,
-                          });
-                        }}
-                      >
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              .map((r) => (
+                <tr key={r.id}>
+                  <td>{r.id}</td>
+                  <td>{r.Faculty?.name || "N/A"}</td>
+                  <td>{r.Class?.name || "N/A"}</td>
+                  <td>{r.Course?.name || "N/A"}</td>
+                  <td>{r.weekOfReporting}</td>
+                  <td>{r.dateOfLecture}</td>
+                  <td>{r.actualStudentsPresent}</td>
+                  <td>{r.venue}</td>
+                  <td>{r.topicTaught}</td>
+                  <td>{r.learningOutcomes}</td>
+                  <td>{r.lecturerRecommendations}</td>
+                  <td>
+                    <button
+                      onClick={() => {
+                        const updatedVenue =
+                          prompt("Venue:", r.venue) || r.venue;
+                        updateReport(r.id, { venue: updatedVenue });
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )}
 
-      {/* Feedback Table */}
+      {/* Feedbacks Table */}
       {activeTab === "feedbacks" && (
         <table className="report-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Report Topic</th>
+              <th>Topic</th>
               <th>Week</th>
-              <th>Date</th>
               <th>Score</th>
-              <th>Feedback</th>
+              <th>Comment</th>
               <th>Rated By</th>
-              <th>Created At</th>
-              <th>Updated At</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            {feedbacks
-              .filter((f) =>
-                reports.some(
-                  (r) => r.id === f.reportId && r.lecturerId === currentUser?.id
-                )
-              )
-              .map((f) => {
-                const report = reports.find((r) => r.id === f.reportId);
-                const rater = users.find((u) => u.id === f.userId);
-                return (
-                  <tr key={f.id}>
-                    <td>{f.id}</td>
-                    <td>{report?.topicTaught || "N/A"}</td>
-                    <td>{report?.weekOfReporting || "N/A"}</td>
-                    <td>{report?.dateOfLecture || "N/A"}</td>
-                    <td>{f.rating || "N/A"}</td>
-                    <td>{f.comment || "N/A"}</td>
-                    <td>{rater?.username || "N/A"}</td>
-                    <td>{new Date(f.createdAt).toLocaleString()}</td>
-                    <td>{new Date(f.updatedAt).toLocaleString()}</td>
-                  </tr>
-                );
-              })}
+            {filteredFeedbacks.map((f) => {
+              const report = reports.find((r) => r.id === f.reportId);
+              const rater = users.find((u) => u.id === f.userId);
+              return (
+                <tr key={f.id}>
+                  <td>{f.id}</td>
+                  <td>{report?.topicTaught || "N/A"}</td>
+                  <td>{report?.weekOfReporting || "N/A"}</td>
+                  <td>{f.rating || "N/A"}</td>
+                  <td>{f.comment || "N/A"}</td>
+                  <td>{rater?.username || "N/A"}</td>
+                  <td>{new Date(f.createdAt).toLocaleDateString()}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
-      )}
-
-      {/* Add Report Modal */}
-      {showAddReportModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Submit New Report</h3>
-            <div className="report-form">
-              {/* Class Selection */}
-              <select
-                value={newReport.classId}
-                onChange={(e) => {
-                  const selectedClassId = parseInt(e.target.value);
-                  const selectedClass = classes.find((cl) => cl.id === selectedClassId);
-                  const selectedCourse = courses.find(
-                    (c) => c.id === selectedClass?.courseId
-                  );
-                  const studentCount = users.filter((u) => u.role === "student").length;
-
-                  setNewReport({
-                    ...newReport,
-                    classId: selectedClassId,
-                    courseId: selectedCourse?.id || "",
-                    facultyId: selectedCourse?.facultyId || "",
-                    venue: selectedClass?.venue || "",
-                    scheduledTime: selectedClass?.scheduledTime || "",
-                    totalRegisteredStudents: studentCount || 0,
-                  });
-                }}
-              >
-                <option value="">Select Your Class</option>
-                {classes
-                  .filter((cl) => cl.lecturerId === currentUser?.id)
-                  .map((cl) => (
-                    <option key={cl.id} value={cl.id}>
-                      {cl.name}
-                    </option>
-                  ))}
-              </select>
-
-              {/* Display Faculty and Course */}
-              <input
-                type="text"
-                value={
-                  faculties.find((f) => f.id === newReport.facultyId)?.name || ""
-                }
-                disabled
-                placeholder="Faculty"
-              />
-              <input
-                type="text"
-                value={
-                  courses.find((c) => c.id === newReport.courseId)?.name || ""
-                }
-                disabled
-                placeholder="Course"
-              />
-              <input
-                type="text"
-                value={currentUser?.username || ""}
-                disabled
-                placeholder="Lecturer"
-              />
-
-              {/* Report Details */}
-              <input
-                type="number"
-                placeholder="Week of Reporting"
-                value={newReport.weekOfReporting}
-                onChange={(e) =>
-                  setNewReport({ ...newReport, weekOfReporting: e.target.value })
-                }
-              />
-              <input
-                type="date"
-                placeholder="Date of Lecture"
-                value={newReport.dateOfLecture}
-                onChange={(e) =>
-                  setNewReport({ ...newReport, dateOfLecture: e.target.value })
-                }
-              />
-              <input
-                type="number"
-                placeholder="Actual Students Present"
-                value={newReport.actualStudentsPresent}
-                onChange={(e) =>
-                  setNewReport({
-                    ...newReport,
-                    actualStudentsPresent: e.target.value,
-                  })
-                }
-              />
-              <input
-                type="number"
-                placeholder="Total Students"
-                value={newReport.totalRegisteredStudents || 0}
-                readOnly
-              />
-              <input
-                type="text"
-                placeholder="Venue"
-                value={newReport.venue}
-                onChange={(e) =>
-                  setNewReport({ ...newReport, venue: e.target.value })
-                }
-              />
-              <input
-                type="time"
-                placeholder="Scheduled Time"
-                value={newReport.scheduledTime}
-                onChange={(e) =>
-                  setNewReport({ ...newReport, scheduledTime: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Topic Taught"
-                value={newReport.topicTaught}
-                onChange={(e) =>
-                  setNewReport({ ...newReport, topicTaught: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Learning Outcomes"
-                value={newReport.learningOutcomes}
-                onChange={(e) =>
-                  setNewReport({
-                    ...newReport,
-                    learningOutcomes: e.target.value,
-                  })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Lecturer Recommendations"
-                value={newReport.lecturerRecommendations}
-                onChange={(e) =>
-                  setNewReport({
-                    ...newReport,
-                    lecturerRecommendations: e.target.value,
-                  })
-                }
-              />
-
-              {/* Modal Buttons */}
-              <div className="modal-buttons">
-                <button onClick={addReport}>Submit</button>
-                <button onClick={() => setShowAddReportModal(false)}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
